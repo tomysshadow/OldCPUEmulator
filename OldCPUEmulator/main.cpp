@@ -138,12 +138,8 @@ BOOL endRefreshTimePeriod() {
 
 void CALLBACK OneShotTimer(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2) {
 	// posts the message to incite the timer
-	if (!PostMessage((HWND)dwUser, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL)) {
-		endRefreshTimePeriod();
-		ReleaseMutex(oldCPUEmulatorMutex);
-		destroySyncedProcess();
-		TerminateProcess(GetCurrentProcess(), -1);
-	}
+	// you're not supposed to call anything other than PostMessage in these callbacks!
+	PostMessage((HWND)dwUser, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL);
 }
 
 BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::vector<HANDLE> &syncedProcessThreads, BYTE mode, BOOL syncedProcessMainThreadOnly, UINT suspendMs, UINT resumeMs) {
@@ -362,7 +358,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.4\n");
+	OutputDebugString("Old CPU Emulator 1.0.5\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
 	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
