@@ -1,20 +1,5 @@
 #include "main.h"
 
-// we will be using some undocumented ntDll features if possible because they're faster
-// we need this program to be super optimized
-typedef NTSTATUS(NTAPI *NTQUERYSYSTEMINFORMATION)(__in SYSTEM_INFORMATION_CLASS SystemInformationClass, __inout PVOID SystemInformation, __in ULONG SystemInformationLength, __out_opt PULONG ReturnLength);
-typedef NTSTATUS(NTAPI *NTSUSPENDPROCESS)(IN HANDLE ProcessHandle);
-typedef NTSTATUS(NTAPI *NTRESUMEPROCESS)(IN HANDLE ProcessHandle);
-NTQUERYSYSTEMINFORMATION _NtQuerySystemInformation = NULL;
-NTSUSPENDPROCESS _NtSuspendProcess = NULL;
-NTRESUMEPROCESS _NtResumeProcess = NULL;
-HANDLE syncedProcess = INVALID_HANDLE_VALUE;
-HANDLE syncedProcessMainThread = INVALID_HANDLE_VALUE;
-HANDLE oldCPUEmulatorMutex = INVALID_HANDLE_VALUE;
-BOOL suspended = FALSE;
-UINT ms = 1;
-UINT s = 1000;
-
 BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 	OutputDebugString("Creating Synced Process");
 
@@ -370,6 +355,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
 		return -1;
 	}
+
+	OutputDebugString("Old CPU Emulator 1.0.1");
+	OutputDebugString("By Anthony Kleine\n");
 
 	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
 

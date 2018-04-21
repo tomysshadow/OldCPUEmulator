@@ -9,7 +9,11 @@
 #include <Powerbase.h>
 #include <PowrProf.h>
 
-const UINT UWM_EMULATE_OLD_CPUS_SYNC_PROCESS = RegisterWindowMessage("UWM_EMULATE_OLD_CPUS_SYNC_PROCESS");
+// we will be using some undocumented NtDll features if possible because they're faster
+// we need this program to be super optimized
+typedef NTSTATUS(NTAPI *NTQUERYSYSTEMINFORMATION)(__in SYSTEM_INFORMATION_CLASS SystemInformationClass, __inout PVOID SystemInformation, __in ULONG SystemInformationLength, __out_opt PULONG ReturnLength);
+typedef NTSTATUS(NTAPI *NTSUSPENDPROCESS)(IN HANDLE ProcessHandle);
+typedef NTSTATUS(NTAPI *NTRESUMEPROCESS)(IN HANDLE ProcessHandle);
 
 typedef struct _PROCESSOR_POWER_INFORMATION {
 	ULONG Number;
@@ -20,9 +24,18 @@ typedef struct _PROCESSOR_POWER_INFORMATION {
 	ULONG CurrentIdleState;
 } PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
 
+NTQUERYSYSTEMINFORMATION _NtQuerySystemInformation = NULL;
+NTSUSPENDPROCESS _NtSuspendProcess = NULL;
+NTRESUMEPROCESS _NtResumeProcess = NULL;
+const UINT UWM_EMULATE_OLD_CPUS_SYNC_PROCESS = RegisterWindowMessage("UWM_EMULATE_OLD_CPUS_SYNC_PROCESS");
+HANDLE syncedProcess = INVALID_HANDLE_VALUE;
+HANDLE syncedProcessMainThread = INVALID_HANDLE_VALUE;
+HANDLE oldCPUEmulatorMutex = INVALID_HANDLE_VALUE;
+BOOL suspended = FALSE;
+UINT ms = 1;
+UINT s = 1000;
+
 void help() {
-	OutputDebugString("Old CPU Emulator 1.0");
-	OutputDebugString("By Anthony Kleine\n");
 	OutputDebugString("\tThis command line tool emulates running a process on a CPU with a");
 	OutputDebugString("\tslower clock speed in order to make old games run at the correct speed");
 	OutputDebugString("\tor underclock CPU intensive processes like video encoding.\n\n");
