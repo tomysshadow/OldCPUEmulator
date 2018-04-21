@@ -42,8 +42,8 @@ void help() {
 	OutputDebugString("Usage: OldCPUEmulator pathname.exe -t targetRate [options]\n");
 	OutputDebugString("-t targetRate");
 	OutputDebugString("\tThe Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate.");
-	OutputDebugString("\tThis argument is required.");
-	OutputDebugString("\tTry 233 to emulate an Intel Pentium II 233 MHz from the late 1990s.\n");
+	OutputDebugString("\tThis argument is required.\n");
+	OutputDebugString("\tTry 233 to emulate an Intel Pentium II 233 MHz from the late 1990s.");
 	OutputDebugString("\tTry 750 to emulate an Intel Pentium III 750 MHz from the early 2000s.\n");
 	OutputDebugString("\tGo to http://intel.com/pressroom/kits/quickrefyr.htm");
 	OutputDebugString("\tfor a quick reference of year to clock speed.");

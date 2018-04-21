@@ -11,8 +11,8 @@ Usage: OldCPUEmulator pathname.exe -t targetRate [options]
 -t targetRate
 	The Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate.
 	This argument is required.
+	
 	Try 233 to emulate an Intel Pentium II 233 MHz from the late 1990s.
-
 	Try 750 to emulate an Intel Pentium III 750 MHz from the early 2000s.
 
 	Go to http://intel.com/pressroom/kits/quickrefyr.htm
