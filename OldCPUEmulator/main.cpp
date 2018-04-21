@@ -352,10 +352,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.7\n");
+	OutputDebugString("Old CPU Emulator 1.0.8\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
-	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
+	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
 
 	ULONG maxMhz = 0;
 
@@ -368,13 +368,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	unsigned int sizeOfDebugString = 0;
 	if (std::string(__argv[1]) == "--dev-get-max-mhz") {
+		char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 		if (!getMaxMhz(maxMhz)
-			|| !maxMhz) {
+			|| !maxMhz
+			|| !debugString
+			|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", maxMhz) < 0) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
-		char* debugString = new char[MAX_ULONG_STRING_LENGTH];
-		sprintf_s(debugString, MAX_ULONG_STRING_LENGTH, "%d\n", maxMhz);
 		OutputDebugString(debugString);
 		delete[] debugString;
 		ReleaseMutex(oldCPUEmulatorMutex);
@@ -391,13 +392,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	char mode = -1;
 	for (int i = 2; i < __argc; ++i) {
 		if (std::string(__argv[i]) == "--dev-get-max-mhz") {
+			char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 			if (!getMaxMhz(maxMhz)
-				|| !maxMhz) {
+				|| !maxMhz
+				|| !debugString
+				|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", maxMhz) < 0) {
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
-			char* debugString = new char[MAX_ULONG_STRING_LENGTH];
-			sprintf_s(debugString, MAX_ULONG_STRING_LENGTH, "%d\n", maxMhz);
 			OutputDebugString(debugString);
 			delete[] debugString;
 			ReleaseMutex(oldCPUEmulatorMutex);
@@ -412,9 +414,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			if (i + 1 < __argc) {
 				targetMhz = atoi(__argv[++i]);
 				if (maxMhz < targetMhz) {
-					sizeOfDebugString = MAX_ULONG_STRING_LENGTH + 50;
-					char* debugString = new char[sizeOfDebugString];
-					sprintf_s(debugString, sizeOfDebugString, "The Target Rate may not exceed the Max Rate of %d.\n", maxMhz);
+					sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 50;
+					char* debugString = (char*)malloc(sizeOfDebugString);
+					if (!debugString || sprintf_s(debugString, sizeOfDebugString, "The Target Rate may not exceed the Max Rate of %d.\n", maxMhz) < 0) {
+						ReleaseMutex(oldCPUEmulatorMutex);
+						return -1;
+					}
 					OutputDebugString(debugString);
 					delete[] debugString;
 					help();
@@ -423,9 +428,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 				}
 				args++;
 			} else {
-				sizeOfDebugString = MAX_ULONG_STRING_LENGTH + 143;
-				char* debugString = new char[sizeOfDebugString];
-				sprintf_s(debugString, sizeOfDebugString, "-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate, from 1 to your CPU clock speed of %d.\n\n\n", maxMhz);
+				sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 143;
+				char* debugString = (char*)malloc(sizeOfDebugString);
+				if (!debugString || sprintf_s(debugString, sizeOfDebugString, "-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate, from 1 to your CPU clock speed of %d.\n\n\n", maxMhz) < 0) {
+					ReleaseMutex(oldCPUEmulatorMutex);
+					return -1;
+				}
 				OutputDebugString(debugString);
 				delete[] debugString;
 				help();
@@ -464,8 +472,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			mode = 2;
 		} else {
 			sizeOfDebugString = sizeof(__argv[i]) + 37;
-			char* debugString = new char[sizeOfDebugString];
-			sprintf_s(debugString, sizeOfDebugString, "Unrecognized command line argument: %s", __argv[i]);
+			char* debugString = (char*)malloc(sizeOfDebugString);
+			if (!debugString || sprintf_s(debugString, sizeOfDebugString, "Unrecognized command line argument: %s", __argv[i]) < 0) {
+				ReleaseMutex(oldCPUEmulatorMutex);
+				return -1;
+			}
 			OutputDebugString(debugString);
 			help();
 			ReleaseMutex(oldCPUEmulatorMutex);
