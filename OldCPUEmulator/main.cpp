@@ -235,9 +235,6 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 				}
 				// SuspendThread already handles the situation in which the thread was already suspended
 				// we don't close the handles here because we need to resume them too
-				char* debugString = new char[32];
-				OutputDebugString(debugString);
-				delete[] debugString;
 				for (unsigned int i = 0;i < size(syncedProcessThreads);i++) {
 					SuspendThread(syncedProcessThreads[i]);
 				}
@@ -261,9 +258,6 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 				// hence why I ensure it's always greater than one
 				// it's alright if we can't resume the thread
 				// we'll just do it on the next loop
-				char* debugString = new char[32];
-				OutputDebugString(debugString);
-				delete[] debugString;
 				for (unsigned int i = size(syncedProcessThreads);i > 0;i--) {
 					if (syncedProcessThreads[i - 1]) {
 						ResumeThread(syncedProcessThreads[i - 1]);
@@ -358,7 +352,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.6\n");
+	OutputDebugString("Old CPU Emulator 1.0.7\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
 	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
