@@ -262,9 +262,9 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 				// there was no way of knowing
 				// instead, we must set i to size directly and check
 				// it's greater than zero, not greater than or equal to
-				for (unsigned int i = size(syncedProcessThreads);i > 0;i--) {
-					if (syncedProcessThreads[i]) {
-						ResumeThread(syncedProcessThreads[i]);
+				for (unsigned int i = size(syncedProcessThreads) - 1;i > 0;i--) {
+					if (syncedProcessThreads[i - 1]) {
+						ResumeThread(syncedProcessThreads[i - 1]);
 					} else {
 						// a thread magically disappeared on us
 						closeSyncedProcessThreads(syncedProcessThreads);
@@ -356,7 +356,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.1");
+	OutputDebugString("Old CPU Emulator 1.0.2");
 	OutputDebugString("By Anthony Kleine\n");
 
 	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
