@@ -110,11 +110,11 @@ BOOL beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 	if (timeBeginPeriod(ms) != TIMERR_NOERROR) {
 		return FALSE;
 	}
-	// if we're suspended 25%
-	// and resumed 75%
-	// we'll be suspended a minimum of 1 Ms
-	// and resumed a minimum of 3 Ms
-	// 75% / 25% = 3 Ms
+	// if we're suspended 3 / 4
+	// and resumed 1 / 4
+	// we'll be suspended a minimum of 3 Ms
+	// and resumed a minimum of 1 Ms
+	// (3 / 4) / (1 / 4) = 3 Ms
 	// 3 Ms + 1 Ms = 4 Ms, our minRefreshMs
 	DOUBLE minRefreshMs = ((DOUBLE)(max(suspend, resume)) / (DOUBLE)(min(suspend, resume)) * (DOUBLE)ms) + (DOUBLE)ms;
 	DOUBLE maxRefreshHz = (DOUBLE)s / (DOUBLE)minRefreshMs;
@@ -187,7 +187,7 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 					NTSTATUS NtStatus = _NtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					// if the buffer wasn't large enough
 					while (NtStatus == STATUS_INFO_LENGTH_MISMATCH) {
-						// DOUBLE the size
+						// double the size
 						sizeOfLpSystemProcessInformationOutputBuffer += sizeOfLpSystemProcessInformationOutputBuffer;
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
@@ -221,7 +221,7 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 								break;
 							}
 							if (!lpSystemProcessInformation->NextEntryOffset) {
-								// there is no next process and we didn't loop through any threads!
+								// there is no next process and we didn't loop through any threads
 								delete[] lpSystemProcessInformationOutputBuffer;
 								lpSystemProcessInformationOutputBuffer = NULL;
 								lpSystemProcessInformation = NULL;
