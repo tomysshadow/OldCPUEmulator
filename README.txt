@@ -23,10 +23,13 @@ Usage: OldCPUEmulator pathname.exe -t targetRate [options]
 -r refreshRate
 	The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
 	This argument is not required.
+	
 	Effectively an accuracy meter.
 	Lower numbers are more accurate but result in choppier playback.
 	Higher numbers are less accurate but result in smoother playback.
-	If not specified, Old CPU Emulator will default to the smoothest possible playback setting.
+	If not specified, Old CPU Emulator will default to the
+	smoothest possible playback setting.
+	
 	Try 60, 30 or 15 for gaming, 1 to 6 for video encoding.
 
 --set-process-priority-high

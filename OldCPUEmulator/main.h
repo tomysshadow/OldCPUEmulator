@@ -51,11 +51,12 @@ void help() {
 	OutputDebugString("\tare in GHz. This tool uses MHz.\n");
 	OutputDebugString("-r refreshRate");
 	OutputDebugString("\tThe Refresh Rate (in Hz, from 1 to 1000) at which to refresh.");
-	OutputDebugString("\tThis argument is not required.");
+	OutputDebugString("\tThis argument is not required.\n");
 	OutputDebugString("\tEffectively an accuracy meter.");
 	OutputDebugString("\tLower numbers are more accurate but result in choppier playback.");
 	OutputDebugString("\tHigher numbers are less accurate but result in smoother playback.");
-	OutputDebugString("\tIf not specified, Old CPU Emulator will default to the smoothest possible playback setting.");
+	OutputDebugString("\tIf not specified, Old CPU Emulator will default to the\n");
+	OutputDebugString("\tsmoothest possible playback setting.\n");
 	OutputDebugString("\tTry 60, 30 or 15 for gaming, 1 to 6 for video encoding.\n");
 	OutputDebugString("--set-process-priority-high");
 	OutputDebugString("\tSet the process priority of Old CPU Emulator to High,");
