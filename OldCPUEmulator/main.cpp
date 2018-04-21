@@ -138,7 +138,7 @@ BOOL endRefreshTimePeriod() {
 
 void CALLBACK OneShotTimer(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2) {
 	// posts the message to incite the timer
-	// you're not supposed to call anything other than PostMessage in these callbacks!
+	// you're not supposed to call anything other than PostMessage in these callbacks
 	PostMessage((HWND)dwUser, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL);
 }
 
