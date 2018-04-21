@@ -303,7 +303,7 @@ BOOL getMaxMhz(ULONG &maxMhz) {
 
 	maxMhz = lpProcessorPowerInformation->MaxMhz;
 
-	delete lpProcessorPowerInformationOutputBuffer;
+	delete[] lpProcessorPowerInformationOutputBuffer;
 	lpProcessorPowerInformationOutputBuffer = NULL;
 	lpProcessorPowerInformation = NULL;
 	return TRUE;
@@ -358,7 +358,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.5\n");
+	OutputDebugString("Old CPU Emulator 1.0.6\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
 	const size_t MAX_ULONG_STRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
