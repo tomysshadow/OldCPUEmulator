@@ -24,17 +24,7 @@ typedef struct _PROCESSOR_POWER_INFORMATION {
 	ULONG CurrentIdleState;
 } PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
 
-NTQUERYSYSTEMINFORMATION originalNtQuerySystemInformation = NULL;
-NTSUSPENDPROCESS originalNtSuspendProcess = NULL;
-NTRESUMEPROCESS originalNtResumeProcess = NULL;
 const UINT UWM_EMULATE_OLD_CPUS_SYNC_PROCESS = RegisterWindowMessage("UWM_EMULATE_OLD_CPUS_SYNC_PROCESS");
-HANDLE oldCPUEmulatorMutex = INVALID_HANDLE_VALUE;
-HANDLE syncedProcess = INVALID_HANDLE_VALUE;
-HANDLE syncedProcessMainThread = INVALID_HANDLE_VALUE;
-BOOL syncedProcessMainThreadOnly = FALSE;
-BOOL suspended = FALSE;
-UINT ms = 1;
-UINT s = 1000;
 
 inline void OutputDebugStringNewline(LPCSTR lpOutputString) {
 	OutputDebugString(lpOutputString);

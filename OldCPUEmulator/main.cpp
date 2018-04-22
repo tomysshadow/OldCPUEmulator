@@ -1,11 +1,11 @@
 #include "main.h"
 
-BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
+BOOL createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, DWORD &syncedProcessID, BOOL syncedProcessMainThreadOnly, HANDLE &hJob) {
 	OutputDebugStringNewline("Creating Synced Process");
 
 	// we create a job so that if either the process or the synced process ends
 	// for whatever reason, we don't sync the process anymore
-	HANDLE hJob = CreateJobObject(NULL, NULL);
+	hJob = CreateJobObject(NULL, NULL);
 	// CreateJobObject returns NULL, not INVALID_HANDLE_VALUE
 	if (!hJob) {
 		return FALSE;
@@ -21,7 +21,6 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 	if (!AssignProcessToJobObject(hJob, GetCurrentProcess())) {
 		return FALSE;
 	}
-
 
 	// this is where we create the synced process and get a handle to it and its main thread, as well as its ID
 	STARTUPINFO syncedProcessStartupInformation;
@@ -59,7 +58,7 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 	return TRUE;
 }
 
-BOOL destroySyncedProcess() {
+BOOL destroySyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, BOOL syncedProcessMainThreadOnly, HANDLE &hJob) {
 	OutputDebugStringNewline("Destroying Synced Process");
 	if (syncedProcessMainThreadOnly) {
 		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
@@ -73,6 +72,9 @@ BOOL destroySyncedProcess() {
 		if (!TerminateProcess(syncedProcess, 0)) {
 			return FALSE;
 		}
+	}
+	if (hJob != INVALID_HANDLE_VALUE) {
+		CloseHandle(hJob);
 	}
 	return TRUE;
 }
@@ -135,7 +137,7 @@ BOOL beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 	return TRUE;
 }
 
-BOOL endRefreshTimePeriod() {
+BOOL endRefreshTimePeriod(UINT ms) {
 	OutputDebugStringNewline("Ending Refresh Time Period");
 	if (timeEndPeriod(ms) != TIMERR_NOERROR) {
 		return FALSE;
@@ -149,7 +151,19 @@ void CALLBACK OneShotTimer(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWO
 	PostMessage((HWND)dwUser, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL);
 }
 
-BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::vector<HANDLE> &syncedProcessThreads, BYTE mode, UINT suspendMs, UINT resumeMs) {
+BOOL syncProcess(HWND hWnd,
+				 HANDLE syncedProcess,
+				 HANDLE syncedProcessMainThread,
+				 DWORD syncedProcessID,
+				 std::vector<HANDLE> &syncedProcessThreads,
+				 BOOL syncedProcessMainThreadOnly,
+				 BOOL &suspended,
+				 BYTE mode,
+				 UINT suspendMs,
+				 UINT resumeMs,
+				 NTQUERYSYSTEMINFORMATION originalNtQuerySystemInformation,
+				 NTSUSPENDPROCESS originalNtSuspendProcess,
+				 NTRESUMEPROCESS originalNtResumeProcess) {
 	//OutputDebugStringNewline("Syncing Process");
 	if (!suspended) {
 		suspended = TRUE;
@@ -346,25 +360,41 @@ BOOL setProcessAffinity(HANDLE process, BYTE affinity) {
 	return TRUE;
 }
 
-void getOriginalNtDllExports() {
-	OutputDebugStringNewline("Getting Original NtDll Exports");
-	HINSTANCE originalNtDll = GetModuleHandle("ntdll.dll");
+void openOriginalNtDll(HINSTANCE &originalNtDll,
+					   NTQUERYSYSTEMINFORMATION &originalNtQuerySystemInformation,
+					   NTSUSPENDPROCESS &originalNtSuspendProcess,
+					   NTRESUMEPROCESS &originalNtResumeProcess) {
+	OutputDebugStringNewline("Opening Original NtDll");
+	originalNtDll = GetModuleHandle("ntdll.dll");
 	if (originalNtDll) {
 		originalNtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(originalNtDll, "NtQuerySystemInformation");
 		originalNtSuspendProcess = (NTSUSPENDPROCESS)GetProcAddress(originalNtDll, "NtSuspendProcess");
 		originalNtResumeProcess = (NTRESUMEPROCESS)GetProcAddress(originalNtDll, "NtResumeProcess");
 	}
-	//CloseHandle(originalNtDll);
+}
+
+void closeOriginalNtDll(HINSTANCE &originalNtDll,
+						NTQUERYSYSTEMINFORMATION &originalNtQuerySystemInformation,
+						NTSUSPENDPROCESS &originalNtSuspendProcess,
+						NTRESUMEPROCESS &originalNtResumeProcess) {
+	OutputDebugStringNewline("Closing Original NtDll");
+	if (originalNtDll) {
+		originalNtQuerySystemInformation = NULL;
+		originalNtSuspendProcess = NULL;
+		originalNtResumeProcess = NULL;
+		// if we free the library prematurely it could cause a crash
+		//FreeLibrary(originalNtDll);
+	}
 }
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	oldCPUEmulatorMutex = CreateMutex(NULL, FALSE, "Old CPU Emulator");
+	HANDLE oldCPUEmulatorMutex = CreateMutex(NULL, FALSE, "Old CPU Emulator");
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
 		OutputDebugStringNewline("You cannot run multiple instances of Old CPU Emulator.");
 		return -1;
 	}
 
-	OutputDebugStringNewline("Old CPU Emulator 1.1.4");
+	OutputDebugStringNewline("Old CPU Emulator 1.1.5");
 	OutputDebugStringNewline("By Anthony Kleine\n");
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -402,6 +432,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	ULONG targetMhz = 233;
 	BOOL setProcessPriorityHigh = FALSE;
 	BOOL setSyncedProcessAffinityOne = FALSE;
+	BOOL syncedProcessMainThreadOnly = FALSE;
 	BOOL refreshHzFloorFifteen = FALSE;
 	char mode = -1;
 	for (int i = 2; i < __argc; ++i) {
@@ -544,12 +575,20 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		}
 	}
 
-	getOriginalNtDllExports();
+	HINSTANCE originalNtDll = NULL;
+	NTQUERYSYSTEMINFORMATION originalNtQuerySystemInformation = NULL;
+	NTSUSPENDPROCESS originalNtSuspendProcess = NULL;
+	NTRESUMEPROCESS originalNtResumeProcess = NULL;
+	openOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 
 	DWORD syncedProcessID = 0;
-	if (!createSyncedProcess((LPSTR)__argv[1], syncedProcessID)
+	HANDLE syncedProcess = INVALID_HANDLE_VALUE;
+	HANDLE syncedProcessMainThread = INVALID_HANDLE_VALUE;
+	HANDLE hJob = NULL;
+	if (!createSyncedProcess((LPSTR)__argv[1], syncedProcess, syncedProcessMainThread, syncedProcessID, syncedProcessMainThreadOnly, hJob)
 		|| syncedProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessMainThread == INVALID_HANDLE_VALUE) {
+		closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		OutputDebugStringNewline("Failed to create the Synced Process");
 		return -1;
@@ -558,21 +597,23 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	if (setSyncedProcessAffinityOne) {
 		if (!setProcessAffinity(syncedProcess, 1)) {
 			OutputDebugStringNewline("Failed to set Synced Process Affinity");
+			closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 			ReleaseMutex(oldCPUEmulatorMutex);
-			destroySyncedProcess();
+			destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 			return -1;
 		}
 	}
 
 	UINT refreshMs = 0;
-	ms = 1;
-	s = 1000;
+	UINT ms = 1;
+	UINT s = 1000;
 	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
 	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
 		OutputDebugStringNewline("Failed to begin Refresh Time Period");
+		closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 		ReleaseMutex(oldCPUEmulatorMutex);
-		destroySyncedProcess();
+		destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 		return -1;
 	}
 	UINT suspendMs = suspend * refreshMs;
@@ -596,11 +637,13 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	std::vector<HANDLE> syncedProcessThreads = {};
 
 	MSG message = {};
+	BOOL suspended = FALSE;
 	// incite the timer that will begin syncing the process
 	if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-		endRefreshTimePeriod();
+		endRefreshTimePeriod(ms);
+		closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 		ReleaseMutex(oldCPUEmulatorMutex);
-		destroySyncedProcess();
+		destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 		return -1;
 	}
 	// while the process is active
@@ -608,18 +651,32 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		message = {};
 		if (PeekMessage(&message, hWnd, 0, 0, PM_REMOVE)) {
 			if (message.message == UWM_EMULATE_OLD_CPUS_SYNC_PROCESS) {
-				if (!syncProcess(hWnd, syncedProcess, syncedProcessID, syncedProcessThreads, mode, suspendMs, resumeMs)) {
-					endRefreshTimePeriod();
+				if (!syncProcess(hWnd,
+					syncedProcess,
+					syncedProcessMainThread,
+					syncedProcessID,
+					syncedProcessThreads,
+					syncedProcessMainThreadOnly,
+					suspended,
+					mode,
+					suspendMs,
+					resumeMs,
+					originalNtQuerySystemInformation,
+					originalNtSuspendProcess,
+					originalNtResumeProcess)) {
+					endRefreshTimePeriod(ms);
+					closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 					ReleaseMutex(oldCPUEmulatorMutex);
-					destroySyncedProcess();
+					destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 					return -1;
 				}
 			}
 		}
 	}
 
-	endRefreshTimePeriod();
+	endRefreshTimePeriod(ms);
+	closeOriginalNtDll(originalNtDll, originalNtQuerySystemInformation, originalNtSuspendProcess, originalNtResumeProcess);
 	ReleaseMutex(oldCPUEmulatorMutex);
-	destroySyncedProcess();
+	destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 	return 0;
 }
