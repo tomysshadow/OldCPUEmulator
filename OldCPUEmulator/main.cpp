@@ -364,7 +364,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugStringNewline("Old CPU Emulator 1.1.2");
+	OutputDebugStringNewline("Old CPU Emulator 1.1.4");
 	OutputDebugStringNewline("By Anthony Kleine\n");
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -378,7 +378,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	if (std::string(__argv[1]) == "--dev-get-max-mhz") {
+	if (std::string(__argv[1]) == "--dev-get-current-mhz") {
 		char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 		if (!getCurrentMhz(currentMhz)
 			|| !currentMhz
@@ -405,7 +405,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	BOOL refreshHzFloorFifteen = FALSE;
 	char mode = -1;
 	for (int i = 2; i < __argc; ++i) {
-		if (std::string(__argv[i]) == "--dev-get-max-mhz") {
+		if (std::string(__argv[i]) == "--dev-get-current-mhz") {
 			char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz

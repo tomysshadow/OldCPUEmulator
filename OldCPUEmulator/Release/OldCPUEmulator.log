@@ -124,8 +124,8 @@ main.cpp(134): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', po
 main.cpp(578): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
 main.cpp(579): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
   Generating code
-  9 of 155 functions ( 5.8%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
+  1 of 155 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   OldCPUEmulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\Release\OldCPUEmulator.exe
