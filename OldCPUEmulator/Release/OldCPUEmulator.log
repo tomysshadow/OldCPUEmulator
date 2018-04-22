@@ -117,14 +117,14 @@ C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\shared\ntstatus.h(13
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um\winnt.h(2502): note: see previous definition of 'STATUS_SXS_EARLY_DEACTIVATION'
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\shared\ntstatus.h(13888): warning C4005: 'STATUS_SXS_INVALID_DEACTIVATION': macro redefinition
   C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um\winnt.h(2503): note: see previous definition of 'STATUS_SXS_INVALID_DEACTIVATION'
-main.cpp(121): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-main.cpp(124): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-main.cpp(126): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
-main.cpp(126): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-main.cpp(552): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
-main.cpp(553): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
+main.cpp(129): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+main.cpp(132): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+main.cpp(134): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
+main.cpp(134): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+main.cpp(563): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
+main.cpp(564): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
   Generating code
-  1 of 154 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  2 of 154 functions ( 1.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code

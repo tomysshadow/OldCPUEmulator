@@ -1,4 +1,4 @@
-Old CPU Emulator 1.0.8
+Old CPU Emulator 1.1.0
 By Anthony Kleine
 
 	This command line tool emulates running a process on a CPU with a
@@ -9,7 +9,7 @@ By Anthony Kleine
 Usage: OldCPUEmulator pathname.exe -t targetRate [options]
 
 -t targetRate
-	The Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate.
+	The Target Rate (in MHz, from 1 to your CPU's current clock speed) to emulate.
 	This argument is required.
 	
 	Try 233 to emulate an Intel Pentium II 233 MHz from the late 1990s.
@@ -42,9 +42,10 @@ Usage: OldCPUEmulator pathname.exe -t targetRate [options]
 	May be unstable with newer games.
 
 --synced-process-main-thread-only
-	Only throttle the speed of the synced process's main thread,
-	which may reduce audio stutters, and improve the accuracy of
-	the emulation on some Windows versions,
+	Try enabling this if the process you're running
+	seems to be barely affected by Old CPU Emulator,
+	as it may increase accuracy on some Windows versions,
+	as well as reduce audio stutters,
 	but could also introduce instability with some games.
 
 --refresh-rate-floor-fifteen

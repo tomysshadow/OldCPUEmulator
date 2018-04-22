@@ -43,6 +43,11 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 	// get the handles and the ID
 	syncedProcess = syncedProcessStartedInformation.hProcess;
 	syncedProcessMainThread = syncedProcessStartedInformation.hThread;
+	if (!syncedProcessMainThreadOnly) {
+		if (!CloseHandle(syncedProcessMainThread)) {
+			return FALSE;
+		}
+	}
 	syncedProcessID = syncedProcessStartedInformation.dwProcessId;
 
 	// assign the synced process to the job object
@@ -56,6 +61,14 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 
 BOOL destroySyncedProcess() {
 	OutputDebugString("Destroying Synced Process\n");
+	if (syncedProcessMainThreadOnly) {
+		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
+			if (!CloseHandle(syncedProcessMainThread)) {
+				return FALSE;
+			}
+		}
+	}
+	// if not already closed
 	if (syncedProcess != INVALID_HANDLE_VALUE) {
 		if (!TerminateProcess(syncedProcess, 0)) {
 			return FALSE;
@@ -72,13 +85,8 @@ BOOL openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &s
 	// and we need to be able to just ignore it
 	HANDLE syncedProcessThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, syncedProcessThreadID);
 	if (syncedProcessThread != INVALID_HANDLE_VALUE) {
-		try {
-			// push it to the back of the others
-			syncedProcessThreads.push_back(syncedProcessThread);
-		} catch (...) {
-			// Fail silently...
-			return FALSE;
-		}
+		// push it to the back of the others
+		syncedProcessThreads.push_back(syncedProcessThread);
 	} else {
 		return FALSE;
 	}
@@ -142,7 +150,7 @@ void CALLBACK OneShotTimer(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWO
 	PostMessage((HWND)dwUser, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL);
 }
 
-BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::vector<HANDLE> &syncedProcessThreads, BYTE mode, BOOL syncedProcessMainThreadOnly, UINT suspendMs, UINT resumeMs) {
+BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::vector<HANDLE> &syncedProcessThreads, BYTE mode, UINT suspendMs, UINT resumeMs) {
 	//OutputDebugString("Syncing Process\n");
 	if (!suspended) {
 		suspended = TRUE;
@@ -245,7 +253,9 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 			SuspendThread(syncedProcessMainThread);
 		}
 		// set the timeout for the next time to run this function
-		timeSetEvent(suspendMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT);
+		if (!timeSetEvent(suspendMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
+			return FALSE;
+		}
 		return TRUE;
 	} else {
 		suspended = FALSE;
@@ -274,13 +284,15 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 		} else {
 			ResumeThread(syncedProcessMainThread);
 		}
-		timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT);
+		if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
+			return FALSE;
+		}
 		return TRUE;
 	}
 }
 
-BOOL getMaxMhz(ULONG &maxMhz) {
-	//OutputDebugString("Getting Max Rate\n");
+BOOL getCurrentMhz(ULONG &currentMhz) {
+	//OutputDebugString("Getting Current Rate\n");
 	SYSTEM_INFO systemInfo = {};
 	GetSystemInfo(&systemInfo);
 	const int SIZE_OF_PROCESSOR_POWER_INFORMATION = sizeof(PROCESSOR_POWER_INFORMATION) * systemInfo.dwNumberOfProcessors;
@@ -295,7 +307,7 @@ BOOL getMaxMhz(ULONG &maxMhz) {
 
 	PPROCESSOR_POWER_INFORMATION lpProcessorPowerInformation = (PPROCESSOR_POWER_INFORMATION)lpProcessorPowerInformationOutputBuffer;
 
-	maxMhz = lpProcessorPowerInformation->MaxMhz;
+	currentMhz = lpProcessorPowerInformation->CurrentMhz;
 
 	delete[] lpProcessorPowerInformationOutputBuffer;
 	lpProcessorPowerInformationOutputBuffer = NULL;
@@ -352,12 +364,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.0.8\n");
+	OutputDebugString("Old CPU Emulator 1.1.0\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
 
-	ULONG maxMhz = 0;
+	ULONG currentMhz = 0;
 
 	if (__argc < 2) {
 		OutputDebugString("You must pass the filename of an executable with which to create a process as the first argument.\n\n\n");
@@ -369,10 +381,10 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	unsigned int sizeOfDebugString = 0;
 	if (std::string(__argv[1]) == "--dev-get-max-mhz") {
 		char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
-		if (!getMaxMhz(maxMhz)
-			|| !maxMhz
+		if (!getCurrentMhz(currentMhz)
+			|| !currentMhz
 			|| !debugString
-			|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", maxMhz) < 0) {
+			|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", currentMhz) < 0) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -387,16 +399,15 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	ULONG targetMhz = 233;
 	BOOL setProcessPriorityHigh = FALSE;
 	BOOL setSyncedProcessAffinityOne = FALSE;
-	BOOL syncedProcessMainThreadOnly = FALSE;
 	BOOL refreshHzFloorFifteen = FALSE;
 	char mode = -1;
 	for (int i = 2; i < __argc; ++i) {
 		if (std::string(__argv[i]) == "--dev-get-max-mhz") {
 			char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
-			if (!getMaxMhz(maxMhz)
-				|| !maxMhz
+			if (!getCurrentMhz(currentMhz)
+				|| !currentMhz
 				|| !debugString
-				|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", maxMhz) < 0) {
+				|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", currentMhz) < 0) {
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
@@ -405,18 +416,18 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
 		} else if (std::string(__argv[i]) == "-t") {
-			if (!getMaxMhz(maxMhz)
-				|| !maxMhz) {
-				OutputDebugString("Failed to get Max Rate");
+			if (!getCurrentMhz(currentMhz)
+				|| !currentMhz) {
+				OutputDebugString("Failed to get Current Rate");
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
 			if (i + 1 < __argc) {
 				targetMhz = atoi(__argv[++i]);
-				if (maxMhz < targetMhz) {
+				if (currentMhz < targetMhz) {
 					sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 50;
 					char* debugString = (char*)malloc(sizeOfDebugString);
-					if (!debugString || sprintf_s(debugString, sizeOfDebugString, "The Target Rate may not exceed the Max Rate of %d.\n", maxMhz) < 0) {
+					if (!debugString || sprintf_s(debugString, sizeOfDebugString, "The Target Rate may not exceed the Current Rate of %d.\n", currentMhz) < 0) {
 						ReleaseMutex(oldCPUEmulatorMutex);
 						return -1;
 					}
@@ -430,7 +441,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			} else {
 				sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 143;
 				char* debugString = (char*)malloc(sizeOfDebugString);
-				if (!debugString || sprintf_s(debugString, sizeOfDebugString, "-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate, from 1 to your CPU clock speed of %d.\n\n\n", maxMhz) < 0) {
+				if (!debugString || sprintf_s(debugString, sizeOfDebugString, "-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate, from 1 to your CPU clock speed of %d.\n\n\n", currentMhz) < 0) {
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
@@ -541,8 +552,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	UINT refreshMs = 0;
 	ms = 1;
 	s = 1000;
-	DOUBLE suspend = ((DOUBLE)(maxMhz - targetMhz) / (DOUBLE)maxMhz);
-	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)maxMhz);
+	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
+	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
 		OutputDebugString("Failed to begin Refresh Time Period\n");
 		ReleaseMutex(oldCPUEmulatorMutex);
@@ -570,19 +581,19 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	std::vector<HANDLE> syncedProcessThreads = {};
 
 	MSG message = {};
-	if (!PostMessage(hWnd, UWM_EMULATE_OLD_CPUS_SYNC_PROCESS, NULL, NULL)) {
-		OutputDebugString("Failed to post the message to sync the process\n");
+	// incite the timer that will begin syncing the process
+	if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
 		endRefreshTimePeriod();
 		ReleaseMutex(oldCPUEmulatorMutex);
 		destroySyncedProcess();
 		return -1;
 	}
-	// while the process is active...
+	// while the process is active
 	while (WaitForSingleObject(syncedProcess, 0) == WAIT_TIMEOUT) {
 		message = {};
 		if (PeekMessage(&message, hWnd, 0, 0, PM_REMOVE)) {
 			if (message.message == UWM_EMULATE_OLD_CPUS_SYNC_PROCESS) {
-				if (!syncProcess(hWnd, syncedProcess, syncedProcessID, syncedProcessThreads, mode, syncedProcessMainThreadOnly, suspendMs, resumeMs)) {
+				if (!syncProcess(hWnd, syncedProcess, syncedProcessID, syncedProcessThreads, mode, suspendMs, resumeMs)) {
 					endRefreshTimePeriod();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					destroySyncedProcess();
