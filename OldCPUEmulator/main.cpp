@@ -2,7 +2,6 @@
 
 BOOL createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, DWORD &syncedProcessID, BOOL syncedProcessMainThreadOnly, HANDLE &hJob) {
 	OutputDebugStringNewline("Creating Synced Process");
-
 	// we create a job so that if either the process or the synced process ends
 	// for whatever reason, we don't sync the process anymore
 	hJob = CreateJobObject(NULL, NULL);
