@@ -7,7 +7,7 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 	// for whatever reason, we don't sync the process anymore
 	HANDLE hJob = CreateJobObject(NULL, NULL);
 	// CreateJobObject returns NULL, not INVALID_HANDLE_VALUE
-	if (hJob == NULL) {
+	if (!hJob) {
 		return FALSE;
 	}
 	// this is how we kill both processes if either ends
@@ -192,14 +192,14 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 					unsigned long sizeOfLpSystemProcessInformationOutputBuffer = 0x10000;
 					// create the buffer of that size
 					LPVOID lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
-					NTSTATUS NtStatus = _NtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
+					NTSTATUS NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					// if the buffer wasn't large enough
 					while (NtStatus == STATUS_INFO_LENGTH_MISMATCH) {
 						// double the size
 						sizeOfLpSystemProcessInformationOutputBuffer += sizeOfLpSystemProcessInformationOutputBuffer;
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
-						NtStatus = _NtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
+						NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					}
 					// check it worked
 					if (NtStatus != STATUS_SUCCESS) {
@@ -247,7 +247,7 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 					SuspendThread(syncedProcessThreads[i]);
 				}
 			} else {
-				_NtSuspendProcess(syncedProcess);
+				originalNtSuspendProcess(syncedProcess);
 			}
 		} else {
 			SuspendThread(syncedProcessMainThread);
@@ -279,7 +279,7 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 					closeSyncedProcessThread(i - 1, syncedProcessThreads);
 				}
 			} else {
-				_NtResumeProcess(syncedProcess);
+				originalNtResumeProcess(syncedProcess);
 			}
 		} else {
 			ResumeThread(syncedProcessMainThread);
@@ -351,9 +351,9 @@ void getNtDllExports() {
 	OutputDebugString("Getting NtDll Exports\n");
 	HINSTANCE NtDll = GetModuleHandle("ntdll.dll");
 	if (NtDll) {
-		_NtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(NtDll, "NtQuerySystemInformation");
-		_NtSuspendProcess = (NTSUSPENDPROCESS)GetProcAddress(NtDll, "NtSuspendProcess");
-		_NtResumeProcess = (NTRESUMEPROCESS)GetProcAddress(NtDll, "NtResumeProcess");
+		originalNtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(NtDll, "NtQuerySystemInformation");
+		originalNtSuspendProcess = (NTSUSPENDPROCESS)GetProcAddress(NtDll, "NtSuspendProcess");
+		originalNtResumeProcess = (NTRESUMEPROCESS)GetProcAddress(NtDll, "NtResumeProcess");
 	}
 	//CloseHandle(NtDll);
 }
@@ -364,7 +364,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.1.0\n");
+	OutputDebugString("Old CPU Emulator 1.1.1\n");
 	OutputDebugString("By Anthony Kleine\n\n");
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -566,8 +566,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	// determine mode if relevant
 	if (!syncedProcessMainThreadOnly) {
 		if (mode == -1) {
-			if (!_NtSuspendProcess || !_NtResumeProcess) {
-				if (!_NtQuerySystemInformation) {
+			if (!originalNtSuspendProcess || !originalNtResumeProcess) {
+				if (!originalNtQuerySystemInformation) {
 					mode = 2;
 				} else {
 					mode = 1;
