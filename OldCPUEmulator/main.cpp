@@ -1,7 +1,7 @@
 #include "main.h"
 
 BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
-	OutputDebugString("Creating Synced Process\n");
+	OutputDebugStringNewline("Creating Synced Process");
 
 	// we create a job so that if either the process or the synced process ends
 	// for whatever reason, we don't sync the process anymore
@@ -60,7 +60,7 @@ BOOL createSyncedProcess(LPSTR lpCommandLine, DWORD &syncedProcessID) {
 }
 
 BOOL destroySyncedProcess() {
-	OutputDebugString("Destroying Synced Process\n");
+	OutputDebugStringNewline("Destroying Synced Process");
 	if (syncedProcessMainThreadOnly) {
 		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
 			if (!CloseHandle(syncedProcessMainThread)) {
@@ -78,7 +78,7 @@ BOOL destroySyncedProcess() {
 }
 
 BOOL openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &syncedProcessThreads) {
-	//OutputDebugString("Opening Synced Process Thread\n");
+	//OutputDebugStringNewline("Opening Synced Process Thread");
 	// open the synced process's thread
 	// we don't bail if it fails
 	// it's a very real possibility that it could fail
@@ -94,7 +94,7 @@ BOOL openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &s
 }
 
 BOOL closeSyncedProcessThread(INT i, std::vector<HANDLE> &syncedProcessThreads) {
-	//OutputDebugString("Closing Synced Process Thread\n");
+	//OutputDebugStringNewline("Closing Synced Process Thread");
 	if (syncedProcessThreads[i] != INVALID_HANDLE_VALUE) {
 		if (!CloseHandle(syncedProcessThreads[i])) {
 			return FALSE;
@@ -105,10 +105,10 @@ BOOL closeSyncedProcessThread(INT i, std::vector<HANDLE> &syncedProcessThreads) 
 }
 
 BOOL beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s, DOUBLE suspend, DOUBLE resume, BOOL refreshHzFloorFifteen) {
-	OutputDebugString("Beginning Refresh Time Period\n");
+	OutputDebugStringNewline("Beginning Refresh Time Period");
 	TIMECAPS devCaps;
 	if (timeGetDevCaps(&devCaps, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
-		OutputDebugString("Failed to get Dev Caps\n");
+		OutputDebugStringNewline("Failed to get Dev Caps");
 		return FALSE;
 	}
 	// one millisecond (approximately)
@@ -136,9 +136,8 @@ BOOL beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 }
 
 BOOL endRefreshTimePeriod() {
-	OutputDebugString("Ending Refresh Time Period\n");
+	OutputDebugStringNewline("Ending Refresh Time Period");
 	if (timeEndPeriod(ms) != TIMERR_NOERROR) {
-		OutputDebugString("Failed to End Refresh Time Period\n");
 		return FALSE;
 	}
 	return TRUE;
@@ -151,7 +150,7 @@ void CALLBACK OneShotTimer(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWO
 }
 
 BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::vector<HANDLE> &syncedProcessThreads, BYTE mode, UINT suspendMs, UINT resumeMs) {
-	//OutputDebugString("Syncing Process\n");
+	//OutputDebugStringNewline("Syncing Process");
 	if (!suspended) {
 		suspended = TRUE;
 		if (!syncedProcessMainThreadOnly) {
@@ -292,7 +291,7 @@ BOOL syncProcess(HWND hWnd, HANDLE syncedProcess, DWORD syncedProcessID, std::ve
 }
 
 BOOL getCurrentMhz(ULONG &currentMhz) {
-	//OutputDebugString("Getting Current Rate\n");
+	//OutputDebugStringNewline("Getting Current Rate");
 	SYSTEM_INFO systemInfo = {};
 	GetSystemInfo(&systemInfo);
 	const int SIZE_OF_PROCESSOR_POWER_INFORMATION = sizeof(PROCESSOR_POWER_INFORMATION) * systemInfo.dwNumberOfProcessors;
@@ -316,7 +315,7 @@ BOOL getCurrentMhz(ULONG &currentMhz) {
 }
 
 BOOL setProcessAffinity(HANDLE process, BYTE affinity) {
-	OutputDebugString("Setting Process Affinity\n");
+	OutputDebugStringNewline("Setting Process Affinity");
 	// set synced process's affinity
 	DWORD_PTR processAffinityMask = NULL;
 	DWORD_PTR systemAffinityMask = NULL;
@@ -347,49 +346,53 @@ BOOL setProcessAffinity(HANDLE process, BYTE affinity) {
 	return TRUE;
 }
 
-void getNtDllExports() {
-	OutputDebugString("Getting NtDll Exports\n");
-	HINSTANCE NtDll = GetModuleHandle("ntdll.dll");
-	if (NtDll) {
-		originalNtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(NtDll, "NtQuerySystemInformation");
-		originalNtSuspendProcess = (NTSUSPENDPROCESS)GetProcAddress(NtDll, "NtSuspendProcess");
-		originalNtResumeProcess = (NTRESUMEPROCESS)GetProcAddress(NtDll, "NtResumeProcess");
+void getOriginalNtDllExports() {
+	OutputDebugStringNewline("Getting Original NtDll Exports");
+	HINSTANCE originalNtDll = GetModuleHandle("ntdll.dll");
+	if (originalNtDll) {
+		originalNtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(originalNtDll, "NtQuerySystemInformation");
+		originalNtSuspendProcess = (NTSUSPENDPROCESS)GetProcAddress(originalNtDll, "NtSuspendProcess");
+		originalNtResumeProcess = (NTRESUMEPROCESS)GetProcAddress(originalNtDll, "NtResumeProcess");
 	}
-	//CloseHandle(NtDll);
+	//CloseHandle(originalNtDll);
 }
 
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	oldCPUEmulatorMutex = CreateMutex(NULL, FALSE, "Old CPU Emulator");
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+		OutputDebugStringNewline("You cannot run multiple instances of Old CPU Emulator.");
 		return -1;
 	}
 
-	OutputDebugString("Old CPU Emulator 1.1.1\n");
-	OutputDebugString("By Anthony Kleine\n\n");
+	OutputDebugStringNewline("Old CPU Emulator 1.1.2");
+	OutputDebugStringNewline("By Anthony Kleine\n");
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
 
 	ULONG currentMhz = 0;
 
 	if (__argc < 2) {
-		OutputDebugString("You must pass the filename of an executable with which to create a process as the first argument.\n\n\n");
+		OutputDebugStringNewline("You must pass the filename of an executable with which to create a process as the first argument.\n\n");
 		help();
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	}
 
-	unsigned int sizeOfDebugString = 0;
 	if (std::string(__argv[1]) == "--dev-get-max-mhz") {
-		char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
+		char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 		if (!getCurrentMhz(currentMhz)
 			|| !currentMhz
-			|| !debugString
-			|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", currentMhz) < 0) {
+			|| !currentMhzString) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
-		OutputDebugString(debugString);
-		delete[] debugString;
+		if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
+			delete[] currentMhzString;
+			ReleaseMutex(oldCPUEmulatorMutex);
+			return -1;
+		}
+		OutputDebugStringNewline(currentMhzString);
+		delete[] currentMhzString;
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return 0;
 	}
@@ -403,50 +406,66 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	char mode = -1;
 	for (int i = 2; i < __argc; ++i) {
 		if (std::string(__argv[i]) == "--dev-get-max-mhz") {
-			char* debugString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
+			char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz
-				|| !debugString
-				|| sprintf_s(debugString, MAX_ULONG_CSTRING_LENGTH, "%d\n", currentMhz) < 0) {
+				|| !currentMhzString) {
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
-			OutputDebugString(debugString);
-			delete[] debugString;
+			if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
+				delete[] currentMhzString;
+				ReleaseMutex(oldCPUEmulatorMutex);
+				return -1;
+			}
+			OutputDebugStringNewline(currentMhzString);
+			delete[] currentMhzString;
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
 		} else if (std::string(__argv[i]) == "-t") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
-				OutputDebugString("Failed to get Current Rate");
+				OutputDebugStringNewline("Failed to get Current Rate");
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
 			if (i + 1 < __argc) {
 				targetMhz = atoi(__argv[++i]);
 				if (currentMhz < targetMhz) {
-					sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 50;
-					char* debugString = (char*)malloc(sizeOfDebugString);
-					if (!debugString || sprintf_s(debugString, sizeOfDebugString, "The Target Rate may not exceed the Current Rate of %d.\n", currentMhz) < 0) {
+					char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
+					if (!currentMhzString) {
 						ReleaseMutex(oldCPUEmulatorMutex);
 						return -1;
 					}
-					OutputDebugString(debugString);
-					delete[] debugString;
+					if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
+						delete[] currentMhzString;
+						ReleaseMutex(oldCPUEmulatorMutex);
+						return -1;
+					}
+					OutputDebugString("The Target Rate may not exceed the Current Rate of ");
+					OutputDebugString(currentMhzString);
+					OutputDebugStringNewline(".\n\n");
+					delete[] currentMhzString;
 					help();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
 				args++;
 			} else {
-				sizeOfDebugString = MAX_ULONG_CSTRING_LENGTH + 143;
-				char* debugString = (char*)malloc(sizeOfDebugString);
-				if (!debugString || sprintf_s(debugString, sizeOfDebugString, "-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed) to emulate, from 1 to your CPU clock speed of %d.\n\n\n", currentMhz) < 0) {
+				char* currentMhzString = (char*)malloc(MAX_ULONG_CSTRING_LENGTH);
+				if (!currentMhzString) {
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
-				OutputDebugString(debugString);
-				delete[] debugString;
+				if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
+					delete[] currentMhzString;
+					ReleaseMutex(oldCPUEmulatorMutex);
+					return -1;
+				}
+				OutputDebugString("-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed of ");
+				OutputDebugString(currentMhzString);
+				OutputDebugStringNewline(") to emulate.\n\n");
+				delete[] currentMhzString;
 				help();
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
@@ -455,14 +474,14 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 			if (i + 1 < __argc) {
 				refreshHz = atoi(__argv[++i]);
 				if (!refreshHz) {
-					OutputDebugString("The Refresh Rate cannot be zero.\n");
+					OutputDebugStringNewline("The Refresh Rate cannot be zero.");
 					help();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
 				//args++;
 			} else {
-				OutputDebugString("-r option requires one argument: the Refresh Rate, from 1 to 1000.\n\n\n");
+				OutputDebugStringNewline("-r option requires one argument: the Refresh Rate (in Hz, from 1 to 1000) at which to refresh.\n\n");
 				help();
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
@@ -482,13 +501,9 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 		} else if (std::string(__argv[i]) == "--dev-force-mode-2") {
 			mode = 2;
 		} else {
-			sizeOfDebugString = sizeof(__argv[i]) + 37;
-			char* debugString = (char*)malloc(sizeOfDebugString);
-			if (!debugString || sprintf_s(debugString, sizeOfDebugString, "Unrecognized command line argument: %s", __argv[i]) < 0) {
-				ReleaseMutex(oldCPUEmulatorMutex);
-				return -1;
-			}
-			OutputDebugString(debugString);
+			OutputDebugString("Unrecognized command line argument: ");
+			OutputDebugString(__argv[i]);
+			OutputDebugStringNewline("\n\n");
 			help();
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
@@ -503,7 +518,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 
 	if (setProcessPriorityHigh) {
 		if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS)) {
-			OutputDebugString("Failed to set synced process priority\n");
+			OutputDebugStringNewline("Failed to set Synced Process Priority");
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -517,32 +532,32 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	windowClassEx.lpszClassName = "OLD_CPU_EMULATOR";
 	HWND hWnd = NULL;
 	if (!RegisterClassEx(&windowClassEx)) {
-		OutputDebugString("Failed to register the Window Class\n");
+		OutputDebugStringNewline("Failed to register the Window Class");
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	} else {
 		hWnd = CreateWindowEx(WS_OVERLAPPED, windowClassEx.lpszClassName, "Old CPU Emulator", WS_CHILD, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, HWND_MESSAGE, NULL, hInstance, NULL);
 		if (!hWnd) {
-			OutputDebugString("Failed to create the Message Only Window\n");
+			OutputDebugStringNewline("Failed to create the Message Only Window");
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
 	}
 
-	getNtDllExports();
+	getOriginalNtDllExports();
 
 	DWORD syncedProcessID = 0;
 	if (!createSyncedProcess((LPSTR)__argv[1], syncedProcessID)
 		|| syncedProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessMainThread == INVALID_HANDLE_VALUE) {
 		ReleaseMutex(oldCPUEmulatorMutex);
-		OutputDebugString("Failed to create the synced process\n");
+		OutputDebugStringNewline("Failed to create the Synced Process");
 		return -1;
 	}
 
 	if (setSyncedProcessAffinityOne) {
 		if (!setProcessAffinity(syncedProcess, 1)) {
-			OutputDebugString("Failed to set synced process affinity\n");
+			OutputDebugStringNewline("Failed to set Synced Process Affinity");
 			ReleaseMutex(oldCPUEmulatorMutex);
 			destroySyncedProcess();
 			return -1;
@@ -555,7 +570,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
 	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
 	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
-		OutputDebugString("Failed to begin Refresh Time Period\n");
+		OutputDebugStringNewline("Failed to begin Refresh Time Period");
 		ReleaseMutex(oldCPUEmulatorMutex);
 		destroySyncedProcess();
 		return -1;
