@@ -95,7 +95,7 @@ BOOL openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &s
 	return TRUE;
 }
 
-BOOL closeSyncedProcessThread(INT i, std::vector<HANDLE> &syncedProcessThreads) {
+BOOL closeSyncedProcessThread(unsigned int i, std::vector<HANDLE> &syncedProcessThreads) {
 	//OutputDebugStringNewline("Closing Synced Process Thread");
 	if (syncedProcessThreads[i] != INVALID_HANDLE_VALUE) {
 		if (!CloseHandle(syncedProcessThreads[i])) {
