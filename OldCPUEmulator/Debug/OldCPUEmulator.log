@@ -117,10 +117,10 @@ c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\ntstatus.h(13
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(2502): note: see previous definition of 'STATUS_SXS_EARLY_DEACTIVATION'
 c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\ntstatus.h(13888): warning C4005: 'STATUS_SXS_INVALID_DEACTIVATION': macro redefinition
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(2503): note: see previous definition of 'STATUS_SXS_INVALID_DEACTIVATION'
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(139): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(142): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(144): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(144): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(138): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(141): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(143): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(143): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(629): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(630): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(631): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
   OldCPUEmulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\Debug\OldCPUEmulator.exe
