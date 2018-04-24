@@ -7,17 +7,20 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	hJob = CreateJobObject(NULL, NULL);
 	// CreateJobObject returns NULL, not INVALID_HANDLE_VALUE
 	if (!hJob) {
+		WriteConsole("Failed to create Job Object");
 		return false;
 	}
 	// this is how we kill both processes if either ends
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobobjectExtendedLimitInformation = {};
 	jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation))) {
+		WriteConsole("Failed to set Job Object Information");
 		return false;
 	}
 	// assign the current process to the job object
 	// we assign the synced process later
 	if (!AssignProcessToJobObject(hJob, GetCurrentProcess())) {
+		WriteConsole("Failed to assign Current Process to Job Object");
 		return false;
 	}
 
@@ -36,6 +39,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	if (!CreateProcess(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL, &syncedProcessStartupInformation, &syncedProcessStartedInformation)
 		|| syncedProcessStartedInformation.hProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessStartedInformation.hThread == INVALID_HANDLE_VALUE) {
+		WriteConsole("Failed to create Synced Process");
 		return false;
 	}
 	// get the handles and the ID
@@ -43,6 +47,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	syncedProcessMainThread = syncedProcessStartedInformation.hThread;
 	if (!syncedProcessMainThreadOnly) {
 		if (!CloseHandle(syncedProcessMainThread)) {
+			WriteConsole("Failed to close Synced Process's Main Thread");
 			return false;
 		}
 	}
@@ -51,17 +56,19 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	// assign the synced process to the job object
 	// we've now set up the job process
 	if (!AssignProcessToJobObject(hJob, syncedProcess)) {
+		WriteConsole("Failed to assign Synced Process to Job Object");
 		return false;
 	}
 
 	return true;
 }
 
-bool destroySyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, bool syncedProcessMainThreadOnly, HANDLE &hJob) {
-	WriteConsole("Destroying Synced Process");
+bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, bool syncedProcessMainThreadOnly, HANDLE &hJob) {
+	WriteConsole("Terminating Synced Process");
 	if (syncedProcessMainThreadOnly) {
 		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
 			if (!CloseHandle(syncedProcessMainThread)) {
+				WriteConsole("Failed to close Synced Process's Main Thread");
 				return false;
 			}
 		}
@@ -69,10 +76,12 @@ bool destroySyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThread
 	// if not already closed
 	if (syncedProcess != INVALID_HANDLE_VALUE) {
 		if (!TerminateProcess(syncedProcess, 0)) {
+			WriteConsole("Failed to terminate Synced Process");
 			return false;
 		}
 	}
 	if (hJob != INVALID_HANDLE_VALUE) {
+		WriteConsole("Failed to close Job Object");
 		CloseHandle(hJob);
 	}
 	return true;
@@ -139,6 +148,7 @@ bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 bool endRefreshTimePeriod(UINT ms) {
 	WriteConsole("Ending Refresh Time Period");
 	if (timeEndPeriod(ms) != TIMERR_NOERROR) {
+		WriteConsole("Failed to end Refresh Time Period");
 		return false;
 	}
 	return true;
@@ -176,6 +186,7 @@ bool syncProcess(HWND hWnd,
 					// use it on Windows ME or lower
 					HANDLE syncedProcessThreadSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
 					if (syncedProcessThreadSnapshot == INVALID_HANDLE_VALUE) {
+						WriteConsole("Failed to create Synced Process Thread Snapshot");
 						return false;
 					}
 
@@ -184,6 +195,7 @@ bool syncProcess(HWND hWnd,
 					syncedProcessThreadWalker.dwSize = sizeof(THREADENTRY32);
 
 					if (!Thread32First(syncedProcessThreadSnapshot, &syncedProcessThreadWalker)) {
+						WriteConsole("Failed to close Synced Process Thread Snapshot");
 						CloseHandle(syncedProcessThreadSnapshot);
 						return false;
 					}
@@ -215,6 +227,7 @@ bool syncProcess(HWND hWnd,
 					}
 					// check it worked
 					if (NtStatus != STATUS_SUCCESS) {
+						WriteConsole("Failed to query System Information");
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = NULL;
 						return false;
@@ -242,6 +255,7 @@ bool syncProcess(HWND hWnd,
 							}
 							if (!lpSystemProcessInformation->NextEntryOffset) {
 								// there is no next process and we didn't loop through any threads
+								WriteConsole("Failed to go to Synced Process's System Process Information");
 								delete[] lpSystemProcessInformationOutputBuffer;
 								lpSystemProcessInformationOutputBuffer = NULL;
 								lpSystemProcessInformation = NULL;
@@ -266,6 +280,7 @@ bool syncProcess(HWND hWnd,
 		}
 		// set the timeout for the next time to run this function
 		if (!timeSetEvent(suspendMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
+			WriteConsole("Failed to set Time Event after suspending Synced Process");
 			return false;
 		}
 	} else {
@@ -296,6 +311,7 @@ bool syncProcess(HWND hWnd,
 			ResumeThread(syncedProcessMainThread);
 		}
 		if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
+			WriteConsole("Failed to set Time Event after resuming Synced Process");
 			return false;
 		}
 	}
@@ -311,6 +327,7 @@ bool getCurrentMhz(ULONG &currentMhz) {
 
 	// TODO: we assume all CPU cores have the same clock speed (it's not normal for anything else to be true right?)
 	if (CallNtPowerInformation(ProcessorInformation, NULL, NULL, lpProcessorPowerInformationOutputBuffer, SIZE_OF_PROCESSOR_POWER_INFORMATION) != STATUS_SUCCESS) {
+		WriteConsole("Failed to call NtPowerInformation");
 		delete[] lpProcessorPowerInformationOutputBuffer;
 		lpProcessorPowerInformationOutputBuffer = NULL;
 		return false;
@@ -332,6 +349,7 @@ bool setProcessAffinity(HANDLE process, byte affinity) {
 	DWORD_PTR processAffinityMask = NULL;
 	DWORD_PTR systemAffinityMask = NULL;
 	if (!GetProcessAffinityMask(process, &processAffinityMask, &systemAffinityMask)) {
+		WriteConsole("Failed to get Process Affinity Mask");
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -349,6 +367,7 @@ bool setProcessAffinity(HANDLE process, byte affinity) {
 		}
 	}
 	if (!SetProcessAffinityMask(process, processAffinityMask)) {
+		WriteConsole("Failed to set Process Affinity Mask");
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -380,7 +399,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	WriteConsole("Old CPU Emulator 1.2");
+	WriteConsole("Old CPU Emulator 1.2.1");
 	WriteConsole("By Anthony Kleine", 2);
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -394,7 +413,8 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 
-	if (std::string(argv[1]) == "--dev-get-current-mhz") {
+	std::string argString = std::string(argv[1]);
+	if (argString == "--dev-get-current-mhz") {
 		char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 		if (!getCurrentMhz(currentMhz)
 			|| !currentMhz
@@ -424,7 +444,8 @@ int main(int argc, char** argv) {
 	bool refreshHzFloorFifteen = false;
 	char mode = -1;
 	for (int i = 2; i < argc; ++i) {
-		if (std::string(argv[i]) == "--dev-get-current-mhz") {
+		argString = std::string(argv[i]);
+		if (argString == "--dev-get-current-mhz") {
 			char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz
@@ -443,7 +464,7 @@ int main(int argc, char** argv) {
 			currentMhzString = 0;
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
-		} else if (std::string(argv[i]) == "-t") {
+		} else if (argString == "-t") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
 				WriteConsole("Failed to get Current Rate");
@@ -495,7 +516,7 @@ int main(int argc, char** argv) {
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
-		} else if (std::string(argv[i]) == "-r") {
+		} else if (argString == "-r") {
 			if (i + 1 < argc) {
 				refreshHz = atoi(argv[++i]);
 				if (!refreshHz) {
@@ -511,19 +532,19 @@ int main(int argc, char** argv) {
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
-		} else if (std::string(argv[i]) == "--set-process-priority-high") {
+		} else if (argString == "--set-process-priority-high") {
 			setProcessPriorityHigh = true;
-		} else if (std::string(argv[i]) == "--set-synced-process-affinity-one") {
+		} else if (argString == "--set-synced-process-affinity-one") {
 			setSyncedProcessAffinityOne = true;
-		} else if (std::string(argv[i]) == "--synced-process-main-thread-only") {
+		} else if (argString == "--synced-process-main-thread-only") {
 			syncedProcessMainThreadOnly = true;
-		} else if (std::string(argv[i]) == "--refresh-rate-floor-fifteen") {
+		} else if (argString == "--refresh-rate-floor-fifteen") {
 			refreshHzFloorFifteen = true;
-		} else if (std::string(argv[i]) == "--dev-force-mode-0") {
+		} else if (argString == "--dev-force-mode-0") {
 			mode = 0;
-		} else if (std::string(argv[i]) == "--dev-force-mode-1") {
+		} else if (argString == "--dev-force-mode-1") {
 			mode = 1;
-		} else if (std::string(argv[i]) == "--dev-force-mode-2") {
+		} else if (argString == "--dev-force-mode-2") {
 			mode = 2;
 		} else {
 			WriteConsole("Unrecognized command line argument: ", false);
@@ -590,7 +611,7 @@ int main(int argc, char** argv) {
 		if (!setProcessAffinity(syncedProcess, 1)) {
 			WriteConsole("Failed to set Synced Process Affinity");
 			ReleaseMutex(oldCPUEmulatorMutex);
-			destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+			terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 			return -1;
 		}
 	}
@@ -603,7 +624,7 @@ int main(int argc, char** argv) {
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
 		WriteConsole("Failed to begin Refresh Time Period");
 		ReleaseMutex(oldCPUEmulatorMutex);
-		destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 		return -1;
 	}
 	UINT suspendMs = suspend * refreshMs;
@@ -630,9 +651,10 @@ int main(int argc, char** argv) {
 	MSG message = {};
 	// incite the timer that will begin syncing the process
 	if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
+		WriteConsole("Failed to set Time Event before syncing the Synced Process");
 		endRefreshTimePeriod(ms);
 		ReleaseMutex(oldCPUEmulatorMutex);
-		destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 		return -1;
 	}
 	// while the process is active
@@ -655,7 +677,7 @@ int main(int argc, char** argv) {
 					originalNtResumeProcess)) {
 					endRefreshTimePeriod(ms);
 					ReleaseMutex(oldCPUEmulatorMutex);
-					destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+					terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 					return -1;
 				}
 			}
@@ -664,6 +686,6 @@ int main(int argc, char** argv) {
 
 	endRefreshTimePeriod(ms);
 	ReleaseMutex(oldCPUEmulatorMutex);
-	destroySyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+	//terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 	return 0;
 }
