@@ -399,7 +399,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	WriteConsole("Old CPU Emulator 1.2.1");
+	WriteConsole("Old CPU Emulator 1.2.2");
 	WriteConsole("By Anthony Kleine", 2);
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -420,13 +420,13 @@ int main(int argc, char** argv) {
 			|| !currentMhz
 			|| !currentMhzString) {
 			ReleaseMutex(oldCPUEmulatorMutex);
-			return -1;
+			return -3;
 		}
 		if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
 			delete[] currentMhzString;
 			currentMhzString = 0;
 			ReleaseMutex(oldCPUEmulatorMutex);
-			return -1;
+			return -4;
 		}
 		WriteConsole(currentMhzString);
 		delete[] currentMhzString;
@@ -451,13 +451,13 @@ int main(int argc, char** argv) {
 				|| !currentMhz
 				|| !currentMhzString) {
 				ReleaseMutex(oldCPUEmulatorMutex);
-				return -1;
+				return -3;
 			}
 			if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
 				delete[] currentMhzString;
 				currentMhzString = 0;
 				ReleaseMutex(oldCPUEmulatorMutex);
-				return -1;
+				return -4;
 			}
 			WriteConsole(currentMhzString);
 			delete[] currentMhzString;
@@ -477,13 +477,13 @@ int main(int argc, char** argv) {
 					char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 					if (!currentMhzString) {
 						ReleaseMutex(oldCPUEmulatorMutex);
-						return -1;
+						return -3;
 					}
 					if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
 						delete[] currentMhzString;
 						currentMhzString = 0;
 						ReleaseMutex(oldCPUEmulatorMutex);
-						return -1;
+						return -4;
 					}
 					WriteConsole("The Target Rate may not exceed the Current Rate of ", false);
 					WriteConsole(currentMhzString, false);
@@ -499,13 +499,13 @@ int main(int argc, char** argv) {
 				char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 				if (!currentMhzString) {
 					ReleaseMutex(oldCPUEmulatorMutex);
-					return -1;
+					return -3;
 				}
 				if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
 					delete[] currentMhzString;
 					currentMhzString = 0;
 					ReleaseMutex(oldCPUEmulatorMutex);
-					return -1;
+					return -4;
 				}
 				WriteConsole("-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed of ", false);
 				WriteConsole(currentMhzString, false);
