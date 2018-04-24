@@ -215,6 +215,10 @@ bool syncProcess(HWND hWnd,
 					unsigned long sizeOfLpSystemProcessInformationOutputBuffer = 0x10000;
 					// create the buffer of that size
 					LPVOID lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
+					if (!lpSystemProcessInformationOutputBuffer) {
+						WriteConsole("Failed to create System Process Information Output Buffer");
+						return false;
+					}
 					NTSTATUS NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					// if the buffer wasn't large enough
 					while (NtStatus == STATUS_INFO_LENGTH_MISMATCH) {
@@ -222,6 +226,10 @@ bool syncProcess(HWND hWnd,
 						sizeOfLpSystemProcessInformationOutputBuffer += sizeOfLpSystemProcessInformationOutputBuffer;
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
+						if (!lpSystemProcessInformationOutputBuffer) {
+							WriteConsole("Failed to create System Process Information Output Buffer");
+							return false;
+						}
 						NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					}
 					// check it worked
@@ -323,6 +331,10 @@ bool getCurrentMhz(ULONG &currentMhz) {
 	GetSystemInfo(&systemInfo);
 	const int SIZE_OF_PROCESSOR_POWER_INFORMATION = sizeof(PROCESSOR_POWER_INFORMATION) * systemInfo.dwNumberOfProcessors;
 	PVOID lpProcessorPowerInformationOutputBuffer = new BYTE[SIZE_OF_PROCESSOR_POWER_INFORMATION];
+	if (!lpProcessorPowerInformationOutputBuffer) {
+		WriteConsole("Failed to create Processor Power Information Output Buffer");
+		return false;
+	}
 
 	// TODO: we assume all CPU cores have the same clock speed (it's not normal for anything else to be true right?)
 	if (CallNtPowerInformation(ProcessorInformation, NULL, NULL, lpProcessorPowerInformationOutputBuffer, SIZE_OF_PROCESSOR_POWER_INFORMATION) != STATUS_SUCCESS) {
@@ -398,7 +410,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	WriteConsole("Old CPU Emulator 1.2.4");
+	WriteConsole("Old CPU Emulator 1.2.5");
 	WriteConsole("By Anthony Kleine", 2);
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
