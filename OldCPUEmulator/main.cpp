@@ -59,7 +59,6 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 		WriteConsole("Failed to assign Synced Process to Job Object");
 		return false;
 	}
-
 	return true;
 }
 
