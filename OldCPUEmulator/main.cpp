@@ -398,7 +398,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	WriteConsole("Old CPU Emulator 1.2.2");
+	WriteConsole("Old CPU Emulator 1.2.3");
 	WriteConsole("By Anthony Kleine", 2);
 
 	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
@@ -601,8 +601,8 @@ int main(int argc, char** argv) {
 	if (!createSyncedProcess((LPSTR)argv[1], syncedProcess, syncedProcessMainThread, syncedProcessID, syncedProcessMainThreadOnly, hJob)
 		|| syncedProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessMainThread == INVALID_HANDLE_VALUE) {
-		ReleaseMutex(oldCPUEmulatorMutex);
 		WriteConsole("Failed to create the Synced Process");
+		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	}
 
