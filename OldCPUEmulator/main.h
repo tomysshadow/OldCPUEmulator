@@ -25,15 +25,22 @@ typedef struct _PROCESSOR_POWER_INFORMATION {
 } PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
 
 HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+HANDLE hConsoleError = GetStdHandle(STD_ERROR_HANDLE);
 const UINT UWM_EMULATE_OLD_CPUS_SYNC_PROCESS = RegisterWindowMessage("UWM_EMULATE_OLD_CPUS_SYNC_PROCESS");
 
-void WriteConsole(const char *lpBuffer, int newline = 1, int tab = 0) {
-	if (hConsoleOutput && hConsoleOutput != INVALID_HANDLE_VALUE) {
+void WriteConsole(const char *lpBuffer, int newline = true, int tab = false, bool handle = false) {
+	HANDLE hConsole = INVALID_HANDLE_VALUE;
+	if (!handle) {
+		hConsole = hConsoleOutput;
+	} else {
+		hConsole = hConsoleError;
+	}
+	if (hConsole && hConsole != INVALID_HANDLE_VALUE) {
 		for (int i = 0;i < tab;i++) {
 			WriteConsole("\t", false);
 		}
 		// override to make the function more convenient and optionally add a newline
-		WriteConsole(hConsoleOutput, lpBuffer, strlen(lpBuffer), NULL, NULL);
+		WriteConsole(hConsole, lpBuffer, strlen(lpBuffer), NULL, NULL);
 		for (int i = 0;i < newline;i++) {
 			WriteConsole("\n", false);
 		}

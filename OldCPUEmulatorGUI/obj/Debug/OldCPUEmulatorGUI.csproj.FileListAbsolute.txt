@@ -1,0 +1,10 @@
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\bin\Debug\OldCPUEmulatorGUI.exe.config
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\bin\Debug\OldCPUEmulatorGUI.exe
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\bin\Debug\OldCPUEmulatorGUI.pdb
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.csprojResolveAssemblyReference.cache
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.Form1.resources
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.Properties.Resources.resources
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.csproj.GenerateResource.Cache
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.csproj.CoreCompileInputs.cache
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.exe
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Debug\OldCPUEmulatorGUI.pdb
