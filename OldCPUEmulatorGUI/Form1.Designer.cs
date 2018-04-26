@@ -36,8 +36,8 @@
 			this.refreshRateFloorFifteenCheckBox = new System.Windows.Forms.CheckBox();
 			this.setSyncedProcessAffinityOneCheckBox = new System.Windows.Forms.CheckBox();
 			this.setProcessPriorityHighCheckBox = new System.Windows.Forms.CheckBox();
-			this.refreshRateLabel = new System.Windows.Forms.Label();
-			this.refreshRateNumericUpDown = new System.Windows.Forms.NumericUpDown();
+			this.refreshHzLabel = new System.Windows.Forms.Label();
+			this.refreshHzNumericUpDown = new System.Windows.Forms.NumericUpDown();
 			this.targetMhzComboBox = new System.Windows.Forms.ComboBox();
 			this.syncedProcessMainThreadOnlyCheckBox = new System.Windows.Forms.CheckBox();
 			this.newButton = new System.Windows.Forms.Button();
@@ -48,7 +48,7 @@
 			this.currentMhzValueLabel = new System.Windows.Forms.Label();
 			this.recentFilesGroupBox.SuspendLayout();
 			this.optionsGroupBox.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.refreshRateNumericUpDown)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.refreshHzNumericUpDown)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// recentFilesListBox
@@ -68,7 +68,7 @@
 			this.titleLabel.Name = "titleLabel";
 			this.titleLabel.Size = new System.Drawing.Size(256, 27);
 			this.titleLabel.TabIndex = 2;
-			this.titleLabel.Text = "Old CPU Emulator 1.3.0";
+			this.titleLabel.Text = "Old CPU Emulator 1.4.0";
 			// 
 			// subtitleLabel
 			// 
@@ -97,12 +97,12 @@
 			this.optionsGroupBox.Controls.Add(this.refreshRateFloorFifteenCheckBox);
 			this.optionsGroupBox.Controls.Add(this.setSyncedProcessAffinityOneCheckBox);
 			this.optionsGroupBox.Controls.Add(this.setProcessPriorityHighCheckBox);
-			this.optionsGroupBox.Controls.Add(this.refreshRateLabel);
-			this.optionsGroupBox.Controls.Add(this.refreshRateNumericUpDown);
+			this.optionsGroupBox.Controls.Add(this.refreshHzLabel);
+			this.optionsGroupBox.Controls.Add(this.refreshHzNumericUpDown);
 			this.optionsGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.optionsGroupBox.Location = new System.Drawing.Point(12, 277);
 			this.optionsGroupBox.Name = "optionsGroupBox";
-			this.optionsGroupBox.Size = new System.Drawing.Size(259, 111);
+			this.optionsGroupBox.Size = new System.Drawing.Size(259, 134);
 			this.optionsGroupBox.TabIndex = 5;
 			this.optionsGroupBox.TabStop = false;
 			this.optionsGroupBox.Text = "Options";
@@ -115,10 +115,11 @@
 			this.refreshRateFloorFifteenCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.refreshRateFloorFifteenCheckBox.Location = new System.Drawing.Point(126, 79);
 			this.refreshRateFloorFifteenCheckBox.Name = "refreshRateFloorFifteenCheckBox";
-			this.refreshRateFloorFifteenCheckBox.Size = new System.Drawing.Size(124, 30);
+			this.refreshRateFloorFifteenCheckBox.Size = new System.Drawing.Size(106, 43);
 			this.refreshRateFloorFifteenCheckBox.TabIndex = 4;
-			this.refreshRateFloorFifteenCheckBox.Text = "Round Refresh Rate\r\nto Nearest 15 Hz";
+			this.refreshRateFloorFifteenCheckBox.Text = "Round Down\r\nRefresh Rate\r\nto Nearest 15 Hz";
 			this.refreshRateFloorFifteenCheckBox.UseVisualStyleBackColor = true;
+			this.refreshRateFloorFifteenCheckBox.CheckedChanged += new System.EventHandler(this.refreshRateFloorFifteenCheckBox_CheckedChanged);
 			// 
 			// setSyncedProcessAffinityOneCheckBox
 			// 
@@ -146,34 +147,34 @@
 			this.setProcessPriorityHighCheckBox.Text = "Set Process Priority\r\nto High";
 			this.setProcessPriorityHighCheckBox.UseVisualStyleBackColor = true;
 			// 
-			// refreshRateLabel
+			// refreshHzLabel
 			// 
-			this.refreshRateLabel.AutoSize = true;
-			this.refreshRateLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.refreshRateLabel.Location = new System.Drawing.Point(7, 20);
-			this.refreshRateLabel.Name = "refreshRateLabel";
-			this.refreshRateLabel.Size = new System.Drawing.Size(95, 13);
-			this.refreshRateLabel.TabIndex = 0;
-			this.refreshRateLabel.Text = "Refresh Rate (Hz:)";
+			this.refreshHzLabel.AutoSize = true;
+			this.refreshHzLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.refreshHzLabel.Location = new System.Drawing.Point(7, 20);
+			this.refreshHzLabel.Name = "refreshHzLabel";
+			this.refreshHzLabel.Size = new System.Drawing.Size(95, 13);
+			this.refreshHzLabel.TabIndex = 0;
+			this.refreshHzLabel.Text = "Refresh Rate (Hz:)";
 			// 
-			// refreshRateNumericUpDown
+			// refreshHzNumericUpDown
 			// 
-			this.refreshRateNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.refreshRateNumericUpDown.Location = new System.Drawing.Point(126, 17);
-			this.refreshRateNumericUpDown.Maximum = new decimal(new int[] {
+			this.refreshHzNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.refreshHzNumericUpDown.Location = new System.Drawing.Point(126, 17);
+			this.refreshHzNumericUpDown.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-			this.refreshRateNumericUpDown.Minimum = new decimal(new int[] {
+			this.refreshHzNumericUpDown.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-			this.refreshRateNumericUpDown.Name = "refreshRateNumericUpDown";
-			this.refreshRateNumericUpDown.Size = new System.Drawing.Size(127, 20);
-			this.refreshRateNumericUpDown.TabIndex = 5;
-			this.refreshRateNumericUpDown.Value = new decimal(new int[] {
+			this.refreshHzNumericUpDown.Name = "refreshHzNumericUpDown";
+			this.refreshHzNumericUpDown.Size = new System.Drawing.Size(127, 20);
+			this.refreshHzNumericUpDown.TabIndex = 5;
+			this.refreshHzNumericUpDown.Value = new decimal(new int[] {
             1000,
             0,
             0,
@@ -192,6 +193,7 @@
 			this.targetMhzComboBox.Size = new System.Drawing.Size(260, 21);
 			this.targetMhzComboBox.TabIndex = 0;
 			this.targetMhzComboBox.SelectedIndexChanged += new System.EventHandler(this.targetMhzComboBox_SelectedIndexChanged);
+			this.targetMhzComboBox.TextUpdate += new System.EventHandler(this.targetMhzComboBox_TextUpdate);
 			// 
 			// syncedProcessMainThreadOnlyCheckBox
 			// 
@@ -262,7 +264,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(284, 403);
+			this.ClientSize = new System.Drawing.Size(284, 423);
 			this.Controls.Add(this.currentMhzValueLabel);
 			this.Controls.Add(this.targetMhzLabel);
 			this.Controls.Add(this.currentMhzLabel);
@@ -274,14 +276,15 @@
 			this.Controls.Add(this.titleLabel);
 			this.Controls.Add(this.recentFilesGroupBox);
 			this.Controls.Add(this.targetMhzComboBox);
+			this.KeyPreview = true;
 			this.MaximizeBox = false;
 			this.Name = "Form1";
-			this.Text = "Old CPU Emulator 1.3.0";
+			this.Text = "Old CPU Emulator 1.4.0";
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.recentFilesGroupBox.ResumeLayout(false);
 			this.optionsGroupBox.ResumeLayout(false);
 			this.optionsGroupBox.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.refreshRateNumericUpDown)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.refreshHzNumericUpDown)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -295,14 +298,14 @@
 		private System.Windows.Forms.GroupBox recentFilesGroupBox;
 		private System.Windows.Forms.GroupBox optionsGroupBox;
 		private System.Windows.Forms.CheckBox setProcessPriorityHighCheckBox;
-		private System.Windows.Forms.Label refreshRateLabel;
+		private System.Windows.Forms.Label refreshHzLabel;
 		private System.Windows.Forms.ComboBox targetMhzComboBox;
 		private System.Windows.Forms.CheckBox setSyncedProcessAffinityOneCheckBox;
 		private System.Windows.Forms.CheckBox syncedProcessMainThreadOnlyCheckBox;
 		private System.Windows.Forms.CheckBox refreshRateFloorFifteenCheckBox;
 		private System.Windows.Forms.Button newButton;
 		private System.Windows.Forms.Button goButton;
-		private System.Windows.Forms.NumericUpDown refreshRateNumericUpDown;
+		private System.Windows.Forms.NumericUpDown refreshHzNumericUpDown;
 		private System.Windows.Forms.OpenFileDialog newOpenFileDialog;
 		private System.Windows.Forms.Label currentMhzLabel;
 		private System.Windows.Forms.Label targetMhzLabel;

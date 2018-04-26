@@ -1,26 +1,26 @@
 #include "main.h"
 
 bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, DWORD &syncedProcessID, bool syncedProcessMainThreadOnly, HANDLE &hJob) {
-	WriteConsole("Creating Synced Process");
+	consoleLog("Creating Synced Process");
 	// we create a job so that if either the process or the synced process ends
 	// for whatever reason, we don't sync the process anymore
 	hJob = CreateJobObject(NULL, NULL);
 	// CreateJobObject returns NULL, not INVALID_HANDLE_VALUE
 	if (!hJob) {
-		WriteConsole("Failed to create Job Object", true, false, true);
+		consoleLog("Failed to create Job Object", true, false, true);
 		return false;
 	}
 	// this is how we kill both processes if either ends
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobobjectExtendedLimitInformation = {};
 	jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation))) {
-		WriteConsole("Failed to set Job Object Information", true, false, true);
+		consoleLog("Failed to set Job Object Information", true, false, true);
 		return false;
 	}
 	// assign the current process to the job object
 	// we assign the synced process later
 	if (!AssignProcessToJobObject(hJob, GetCurrentProcess())) {
-		WriteConsole("Failed to assign Current Process to Job Object", true, false, true);
+		consoleLog("Failed to assign Current Process to Job Object", true, false, true);
 		return false;
 	}
 
@@ -39,7 +39,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	if (!CreateProcess(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL, &syncedProcessStartupInformation, &syncedProcessStartedInformation)
 		|| syncedProcessStartedInformation.hProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessStartedInformation.hThread == INVALID_HANDLE_VALUE) {
-		WriteConsole("Failed to create Synced Process", true, false, true);
+		consoleLog("Failed to create Synced Process", true, false, true);
 		return false;
 	}
 	// get the handles and the ID
@@ -47,7 +47,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	syncedProcessMainThread = syncedProcessStartedInformation.hThread;
 	if (!syncedProcessMainThreadOnly) {
 		if (!CloseHandle(syncedProcessMainThread)) {
-			WriteConsole("Failed to close Synced Process's Main Thread", true, false, true);
+			consoleLog("Failed to close Synced Process's Main Thread", true, false, true);
 			return false;
 		}
 	}
@@ -56,18 +56,18 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	// assign the synced process to the job object
 	// we've now set up the job process
 	if (!AssignProcessToJobObject(hJob, syncedProcess)) {
-		WriteConsole("Failed to assign Synced Process to Job Object", true, false, true);
+		consoleLog("Failed to assign Synced Process to Job Object", true, false, true);
 		return false;
 	}
 	return true;
 }
 
 bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, bool syncedProcessMainThreadOnly, HANDLE &hJob) {
-	WriteConsole("Terminating Synced Process");
+	consoleLog("Terminating Synced Process");
 	if (syncedProcessMainThreadOnly) {
 		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
 			if (!CloseHandle(syncedProcessMainThread)) {
-				WriteConsole("Failed to close Synced Process's Main Thread", true, false, true);
+				consoleLog("Failed to close Synced Process's Main Thread", true, false, true);
 				return false;
 			}
 		}
@@ -75,19 +75,19 @@ bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThre
 	// if not already closed
 	if (syncedProcess != INVALID_HANDLE_VALUE) {
 		if (!TerminateProcess(syncedProcess, 0)) {
-			WriteConsole("Failed to terminate Synced Process", true, false, true);
+			consoleLog("Failed to terminate Synced Process", true, false, true);
 			return false;
 		}
 	}
 	if (hJob != INVALID_HANDLE_VALUE) {
-		WriteConsole("Failed to close Job Object", true, false, true);
+		consoleLog("Failed to close Job Object", true, false, true);
 		CloseHandle(hJob);
 	}
 	return true;
 }
 
 bool openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &syncedProcessThreads) {
-	//WriteConsole("Opening Synced Process Thread");
+	//consoleLog("Opening Synced Process Thread");
 	// open the synced process's thread
 	// we don't bail if it fails
 	// it's a very real possibility that it could fail
@@ -103,7 +103,7 @@ bool openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &s
 }
 
 bool closeSyncedProcessThread(unsigned int i, std::vector<HANDLE> &syncedProcessThreads) {
-	//WriteConsole("Closing Synced Process Thread");
+	//consoleLog("Closing Synced Process Thread");
 	if (syncedProcessThreads[i] != INVALID_HANDLE_VALUE) {
 		if (!CloseHandle(syncedProcessThreads[i])) {
 			return false;
@@ -114,10 +114,10 @@ bool closeSyncedProcessThread(unsigned int i, std::vector<HANDLE> &syncedProcess
 }
 
 bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s, DOUBLE suspend, DOUBLE resume, bool refreshHzFloorFifteen) {
-	WriteConsole("Beginning Refresh Time Period");
+	consoleLog("Beginning Refresh Time Period");
 	TIMECAPS devCaps;
 	if (timeGetDevCaps(&devCaps, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
-		WriteConsole("Failed to get Time Dev Caps", true, false, true);
+		consoleLog("Failed to get Time Dev Caps", true, false, true);
 		return false;
 	}
 	// one millisecond (approximately)
@@ -145,9 +145,9 @@ bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 }
 
 bool endRefreshTimePeriod(UINT ms) {
-	WriteConsole("Ending Refresh Time Period");
+	consoleLog("Ending Refresh Time Period");
 	if (timeEndPeriod(ms) != TIMERR_NOERROR) {
-		WriteConsole("Failed to end Refresh Time Period", true, false, true);
+		consoleLog("Failed to end Refresh Time Period", true, false, true);
 		return false;
 	}
 	return true;
@@ -172,7 +172,7 @@ bool syncProcess(HWND hWnd,
 				 NTQUERYSYSTEMINFORMATION originalNtQuerySystemInformation,
 				 NTSUSPENDPROCESS originalNtSuspendProcess,
 				 NTRESUMEPROCESS originalNtResumeProcess) {
-	//WriteConsole("Syncing Process");
+	//consoleLog("Syncing Process");
 	if (!suspended) {
 		suspended = true;
 		if (!syncedProcessMainThreadOnly) {
@@ -185,7 +185,7 @@ bool syncProcess(HWND hWnd,
 					// use it on Windows ME or lower
 					HANDLE syncedProcessThreadSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
 					if (syncedProcessThreadSnapshot == INVALID_HANDLE_VALUE) {
-						WriteConsole("Failed to create Synced Process Thread Snapshot", true, false, true);
+						consoleLog("Failed to create Synced Process Thread Snapshot", true, false, true);
 						return false;
 					}
 
@@ -194,7 +194,7 @@ bool syncProcess(HWND hWnd,
 					syncedProcessThreadWalker.dwSize = sizeof(THREADENTRY32);
 
 					if (!Thread32First(syncedProcessThreadSnapshot, &syncedProcessThreadWalker)) {
-						WriteConsole("Failed to close Synced Process Thread Snapshot", true, false, true);
+						consoleLog("Failed to close Synced Process Thread Snapshot", true, false, true);
 						CloseHandle(syncedProcessThreadSnapshot);
 						return false;
 					}
@@ -216,7 +216,7 @@ bool syncProcess(HWND hWnd,
 					// create the buffer of that size
 					LPVOID lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
 					if (!lpSystemProcessInformationOutputBuffer) {
-						WriteConsole("Failed to create System Process Information Output Buffer", true, false, true);
+						consoleLog("Failed to create System Process Information Output Buffer", true, false, true);
 						return false;
 					}
 					NTSTATUS NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
@@ -227,14 +227,14 @@ bool syncProcess(HWND hWnd,
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
 						if (!lpSystemProcessInformationOutputBuffer) {
-							WriteConsole("Failed to create System Process Information Output Buffer", true, false, true);
+							consoleLog("Failed to create System Process Information Output Buffer", true, false, true);
 							return false;
 						}
 						NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					}
 					// check it worked
 					if (NtStatus != STATUS_SUCCESS) {
-						WriteConsole("Failed to query System Information", true, false, true);
+						consoleLog("Failed to query System Information", true, false, true);
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = NULL;
 						return false;
@@ -262,7 +262,7 @@ bool syncProcess(HWND hWnd,
 							}
 							if (!lpSystemProcessInformation->NextEntryOffset) {
 								// there is no next process and we didn't loop through any threads
-								WriteConsole("Failed to go to Synced Process's System Process Information", true, false, true);
+								consoleLog("Failed to go to Synced Process's System Process Information", true, false, true);
 								delete[] lpSystemProcessInformationOutputBuffer;
 								lpSystemProcessInformationOutputBuffer = NULL;
 								lpSystemProcessInformation = NULL;
@@ -287,7 +287,7 @@ bool syncProcess(HWND hWnd,
 		}
 		// set the timeout for the next time to run this function
 		if (!timeSetEvent(suspendMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-			WriteConsole("Failed to set Time Event after suspending Synced Process", true, false, true);
+			consoleLog("Failed to set Time Event after suspending Synced Process", true, false, true);
 			return false;
 		}
 	} else {
@@ -318,7 +318,7 @@ bool syncProcess(HWND hWnd,
 			ResumeThread(syncedProcessMainThread);
 		}
 		if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-			WriteConsole("Failed to set Time Event after resuming Synced Process", true, false, true);
+			consoleLog("Failed to set Time Event after resuming Synced Process", true, false, true);
 			return false;
 		}
 	}
@@ -326,19 +326,19 @@ bool syncProcess(HWND hWnd,
 }
 
 bool getCurrentMhz(ULONG &currentMhz) {
-	//WriteConsole("Getting Current Rate");
+	//consoleLog("Getting Current Rate");
 	SYSTEM_INFO systemInfo = {};
 	GetSystemInfo(&systemInfo);
 	const int SIZE_OF_PROCESSOR_POWER_INFORMATION = sizeof(PROCESSOR_POWER_INFORMATION) * systemInfo.dwNumberOfProcessors;
 	PVOID lpProcessorPowerInformationOutputBuffer = new BYTE[SIZE_OF_PROCESSOR_POWER_INFORMATION];
 	if (!lpProcessorPowerInformationOutputBuffer) {
-		WriteConsole("Failed to create Processor Power Information Output Buffer", true, false, true);
+		consoleLog("Failed to create Processor Power Information Output Buffer", true, false, true);
 		return false;
 	}
 
 	// TODO: we assume all CPU cores have the same clock speed (it's not normal for anything else to be true right?)
 	if (CallNtPowerInformation(ProcessorInformation, NULL, NULL, lpProcessorPowerInformationOutputBuffer, SIZE_OF_PROCESSOR_POWER_INFORMATION) != STATUS_SUCCESS) {
-		WriteConsole("Failed to call NtPowerInformation", true, false, true);
+		consoleLog("Failed to call NtPowerInformation", true, false, true);
 		delete[] lpProcessorPowerInformationOutputBuffer;
 		lpProcessorPowerInformationOutputBuffer = NULL;
 		return false;
@@ -355,12 +355,12 @@ bool getCurrentMhz(ULONG &currentMhz) {
 }
 
 bool setProcessAffinity(HANDLE process, byte affinity) {
-	WriteConsole("Setting Process Affinity");
+	consoleLog("Setting Process Affinity");
 	// set synced process's affinity
 	DWORD_PTR processAffinityMask = NULL;
 	DWORD_PTR systemAffinityMask = NULL;
 	if (!GetProcessAffinityMask(process, &processAffinityMask, &systemAffinityMask)) {
-		WriteConsole("Failed to get Process Affinity Mask", true, false, true);
+		consoleLog("Failed to get Process Affinity Mask", true, false, true);
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -378,7 +378,7 @@ bool setProcessAffinity(HANDLE process, byte affinity) {
 		}
 	}
 	if (!SetProcessAffinityMask(process, processAffinityMask)) {
-		WriteConsole("Failed to set Process Affinity Mask", true, false, true);
+		consoleLog("Failed to set Process Affinity Mask", true, false, true);
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -392,7 +392,7 @@ void getOriginalNtDll(HINSTANCE &originalNtDll,
 					   NTQUERYSYSTEMINFORMATION &originalNtQuerySystemInformation,
 					   NTSUSPENDPROCESS &originalNtSuspendProcess,
 					   NTRESUMEPROCESS &originalNtResumeProcess) {
-	WriteConsole("Getting Original NtDll");
+	consoleLog("Getting Original NtDll");
 	originalNtDll = GetModuleHandle("ntdll.dll");
 	if (originalNtDll) {
 		originalNtQuerySystemInformation = (NTQUERYSYSTEMINFORMATION)GetProcAddress(originalNtDll, "NtQuerySystemInformation");
@@ -404,21 +404,19 @@ void getOriginalNtDll(HINSTANCE &originalNtDll,
 int main(int argc, char** argv) {
 	HANDLE oldCPUEmulatorMutex = CreateMutex(NULL, FALSE, "Old CPU Emulator");
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
-		//WriteConsole("You cannot run multiple instances of Old CPU Emulator.", true, false, true);
+		//consoleLog("You cannot run multiple instances of Old CPU Emulator.", true, false, true);
 		return -2;
 	}
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	WriteConsole("Old CPU Emulator 1.3.0");
-	WriteConsole("By Anthony Kleine", 2);
-
-	const size_t MAX_ULONG_CSTRING_LENGTH = std::to_string(ULONG_MAX).length() + 1;
+	consoleLog("Old CPU Emulator 1.4.0");
+	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;
 
 	if (argc < 2) {
-		WriteConsole("You must pass the filename of an executable with which to create a process as the first argument.", 3, false, true);
+		consoleLog("You must pass the filename of an executable with which to create a process as the first argument.", 3, false, true);
 		help();
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
@@ -430,22 +428,13 @@ int main(int argc, char** argv) {
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return 0;
 	} else if (argString == "--dev-get-current-mhz") {
-		char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 		if (!getCurrentMhz(currentMhz)
-			|| !currentMhz
-			|| !currentMhzString) {
+			|| !currentMhz) {
+			consoleLog("Failed to get Current Rate");
 			ReleaseMutex(oldCPUEmulatorMutex);
-			return -3;
+			return -1;
 		}
-		if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
-			delete[] currentMhzString;
-			currentMhzString = 0;
-			ReleaseMutex(oldCPUEmulatorMutex);
-			return -4;
-		}
-		WriteConsole(currentMhzString, false);
-		delete[] currentMhzString;
-		currentMhzString = 0;
+		consoleLog(std::to_string(currentMhz).c_str(), false);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return 0;
 	}
@@ -461,78 +450,43 @@ int main(int argc, char** argv) {
 	for (int i = 2; i < argc; ++i) {
 		argString = std::string(argv[i]);
 		if (argString == "--dev-get-current-mhz") {
-			char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
 			if (!getCurrentMhz(currentMhz)
-				|| !currentMhz
-				|| !currentMhzString) {
+				|| !currentMhz) {
+				consoleLog("Failed to get Current Rate");
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -3;
 			}
-			if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
-				delete[] currentMhzString;
-				currentMhzString = 0;
-				ReleaseMutex(oldCPUEmulatorMutex);
-				return -4;
-			}
-			WriteConsole(currentMhzString, false);
-			delete[] currentMhzString;
-			currentMhzString = 0;
+			consoleLog(std::to_string(currentMhz).c_str(), false);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
 		} else if (argString == "-t") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
-				WriteConsole("Failed to get Current Rate", true, false, true);
+				consoleLog("Failed to get Current Rate", true, false, true);
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
 			if (i + 1 < argc) {
 				targetMhz = strtol(argv[++i], NULL, 10);
 				if (!targetMhz) {
-					WriteConsole("The Target Rate must be a number.", true, false, true);
+					consoleLog("The Target Rate must be a number.", true, false, true);
 					help();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
-				if (currentMhz < targetMhz) {
-					char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
-					if (!currentMhzString) {
-						ReleaseMutex(oldCPUEmulatorMutex);
-						return -3;
-					}
-					if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
-						delete[] currentMhzString;
-						currentMhzString = 0;
-						ReleaseMutex(oldCPUEmulatorMutex);
-						return -4;
-					}
-					WriteConsole("The Target Rate may not exceed the Current Rate of ", false, false, true);
-					WriteConsole(currentMhzString, false, false, true);
-					WriteConsole(".", 3, false, true);
-					delete[] currentMhzString;
-					currentMhzString = 0;
+				if (currentMhz <= targetMhz) {
+					consoleLog("The Target Rate cannot exceed or equal the Current Rate of ", false, false, true);
+					consoleLog(std::to_string(currentMhz).c_str(), false, false, true);
+					consoleLog(".", 3, false, true);
 					help();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
 				args++;
 			} else {
-				char* currentMhzString = new char[MAX_ULONG_CSTRING_LENGTH];
-				if (!currentMhzString) {
-					ReleaseMutex(oldCPUEmulatorMutex);
-					return -3;
-				}
-				if (sprintf_s(currentMhzString, MAX_ULONG_CSTRING_LENGTH, "%d", currentMhz) < 0) {
-					delete[] currentMhzString;
-					currentMhzString = 0;
-					ReleaseMutex(oldCPUEmulatorMutex);
-					return -4;
-				}
-				WriteConsole("-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed of ", false, false, true);
-				WriteConsole(currentMhzString, false, false, true);
-				WriteConsole(") to emulate.", 3, false, true);
-				delete[] currentMhzString;
-				currentMhzString = 0;
+				consoleLog("-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed of ", false, false, true);
+				consoleLog(std::to_string(currentMhz).c_str(), false, false, true);
+				consoleLog(") to emulate.", 3, false, true);
 				help();
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
@@ -541,14 +495,14 @@ int main(int argc, char** argv) {
 			if (i + 1 < argc) {
 				refreshHz = atoi(argv[++i]);
 				if (!refreshHz) {
-					WriteConsole("The Refresh Rate cannot be zero.", 3, false, true);
+					consoleLog("The Refresh Rate cannot be zero.", 3, false, true);
 					help();
 					ReleaseMutex(oldCPUEmulatorMutex);
 					return -1;
 				}
 				//args++;
 			} else {
-				WriteConsole("-r option requires one argument: the Refresh Rate (in Hz, from 1 to 1000) at which to refresh.", 3, false, true);
+				consoleLog("-r option requires one argument: the Refresh Rate (in Hz, from 1 to 1000) at which to refresh.", 3, false, true);
 				help();
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
@@ -572,8 +526,8 @@ int main(int argc, char** argv) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
 		} else {
-			WriteConsole("Unrecognized command line argument: ", false, false, true);
-			WriteConsole(argv[i], 3, false, true);
+			consoleLog("Unrecognized command line argument: ", false, false, true);
+			consoleLog(argv[i], 3, false, true);
 			help();
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
@@ -588,7 +542,7 @@ int main(int argc, char** argv) {
 
 	if (setProcessPriorityHigh) {
 		if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS)) {
-			WriteConsole("Failed to set Synced Process Priority", true, false, true);
+			consoleLog("Failed to set Synced Process Priority", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -602,13 +556,13 @@ int main(int argc, char** argv) {
 	windowClassEx.lpszClassName = "OLD_CPU_EMULATOR";
 	HWND hWnd = NULL;
 	if (!RegisterClassEx(&windowClassEx)) {
-		WriteConsole("Failed to register the Window Class", true, false, true);
+		consoleLog("Failed to register the Window Class", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	} else {
 		hWnd = CreateWindowEx(WS_OVERLAPPED, windowClassEx.lpszClassName, "Old CPU Emulator", WS_CHILD, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, HWND_MESSAGE, NULL, hInstance, NULL);
 		if (!hWnd) {
-			WriteConsole("Failed to create the Message Only Window", true, false, true);
+			consoleLog("Failed to create the Message Only Window", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -627,14 +581,14 @@ int main(int argc, char** argv) {
 	if (!createSyncedProcess((LPSTR)argv[1], syncedProcess, syncedProcessMainThread, syncedProcessID, syncedProcessMainThreadOnly, hJob)
 		|| syncedProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessMainThread == INVALID_HANDLE_VALUE) {
-		WriteConsole("Failed to create the Synced Process", true, false, true);
+		consoleLog("Failed to create the Synced Process", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	}
 
 	if (setSyncedProcessAffinityOne) {
 		if (!setProcessAffinity(syncedProcess, 1)) {
-			WriteConsole("Failed to set Synced Process Affinity", true, false, true);
+			consoleLog("Failed to set Synced Process Affinity", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 			return -1;
@@ -647,7 +601,7 @@ int main(int argc, char** argv) {
 	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
 	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
-		WriteConsole("Failed to begin Refresh Time Period", true, false, true);
+		consoleLog("Failed to begin Refresh Time Period", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 		return -1;
@@ -676,7 +630,7 @@ int main(int argc, char** argv) {
 	MSG message = {};
 	// incite the timer that will begin syncing the process
 	if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-		WriteConsole("Failed to set Time Event before syncing the Synced Process", true, false, true);
+		consoleLog("Failed to set Time Event before syncing the Synced Process", true, false, true);
 		endRefreshTimePeriod(ms);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
@@ -700,7 +654,7 @@ int main(int argc, char** argv) {
 					originalNtQuerySystemInformation,
 					originalNtSuspendProcess,
 					originalNtResumeProcess)) {
-					WriteConsole("Failed to sync the Synced Process", true, false, true);
+					consoleLog("Failed to sync the Synced Process", true, false, true);
 					endRefreshTimePeriod(ms);
 					ReleaseMutex(oldCPUEmulatorMutex);
 					terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);

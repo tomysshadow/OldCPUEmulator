@@ -6,6 +6,13 @@ using System.Windows.Forms;
 
 namespace OldCPUEmulatorGUI
 {
+	public static class MathUtils
+	{
+		public static uint clamp(uint number, uint min, uint max)
+		{
+			return Math.Min(Math.Max(min, number), max);
+		}
+	}
 	static class Program
 	{
 		/// <summary>
