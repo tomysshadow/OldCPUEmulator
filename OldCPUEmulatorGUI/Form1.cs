@@ -118,6 +118,11 @@ namespace OldCPUEmulatorGUI
 					}
 					break;
 			}
+			if (targetMhz < 1)
+			{
+				MessageBox.Show("The Target Rate cannot be less than one.");
+				return false;
+			}
 			if (currentMhz <= targetMhz)
 			{
 				MessageBox.Show("The Target Rate cannot exceed or equal the Current Rate of " + currentMhzValueLabel.Text + ".");

@@ -74,7 +74,7 @@ bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThre
 	}
 	// if not already closed
 	if (syncedProcess != INVALID_HANDLE_VALUE) {
-		if (!TerminateProcess(syncedProcess, 0)) {
+		if (!TerminateProcess(syncedProcess, -1)) {
 			consoleLog("Failed to terminate Synced Process", true, false, true);
 			return false;
 		}
@@ -410,7 +410,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.4.0");
+	consoleLog("Old CPU Emulator 1.4.1");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;

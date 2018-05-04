@@ -7,3 +7,4 @@ C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmul
 C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Release\OldCPUEmulatorGUI.exe
 C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Release\OldCPUEmulatorGUI.pdb
 C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\bin\Release\OldCPUEmulatorGUI.pdb
+C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\OldCPUEmulatorGUI\obj\Release\OldCPUEmulatorGUI.csprojResolveAssemblyReference.cache

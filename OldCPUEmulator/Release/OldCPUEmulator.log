@@ -124,7 +124,7 @@ main.cpp(143): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', po
 main.cpp(609): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
 main.cpp(610): warning C4244: 'initializing': conversion from 'DOUBLE' to 'UINT', possible loss of data
   Generating code
-  1 of 170 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  2 of 170 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
