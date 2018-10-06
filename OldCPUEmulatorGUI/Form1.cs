@@ -107,7 +107,7 @@ namespace OldCPUEmulatorGUI
 					targetMhz = 233;
 					break;
 				case 1:
-					targetMhz = 750;
+					targetMhz = 350;
 					break;
 				default:
 					if (!long.TryParse(targetMhzComboBox.Text, out targetMhz))
@@ -300,7 +300,13 @@ namespace OldCPUEmulatorGUI
 			if (targetMhzComboBox.SelectedIndex == targetMhzComboBox.Items.Count - 1)
 			{
 				targetMhzComboBox.DropDownStyle = ComboBoxStyle.DropDown;
-			}
+                long currentMhz = 0;
+                if (!getCurrentMhz(out currentMhz))
+                {
+                    Application.Exit();
+                }
+                targetMhzComboBox.Text = (currentMhz - 1).ToString();
+            }
 			floorRefreshRateFifteen();
 			refreshHzNumericUpDown.Value = refreshHzNumericUpDown.Maximum;
 		}
@@ -308,7 +314,8 @@ namespace OldCPUEmulatorGUI
 		private void targetMhzComboBox_TextUpdate(object sender, EventArgs e)
 		{
 			floorRefreshRateFifteen();
-		}
+            refreshHzNumericUpDown.Value = refreshHzNumericUpDown.Maximum;
+        }
 
 		private void refreshRateFloorFifteenCheckBox_CheckedChanged(object sender, EventArgs e)
 		{

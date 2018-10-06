@@ -1,4 +1,4 @@
-Old CPU Emulator 1.4.1
+Old CPU Emulator 1.4.2
 By Anthony Kleine
 
 	This command line tool emulates running a process on a CPU with a
@@ -14,7 +14,7 @@ Usage: OldCPUEmulator pathname.exe -t targetRate [options]
 	This argument is required.
 	
 	Try 233 to emulate an Intel Pentium II 233 MHz from the late 1990s.
-	Try 750 to emulate an Intel Pentium III 750 MHz from the early 2000s.
+	Try 350 to emulate an Intel Pentium II 350 MHz from the early 2000s.
 
 	Go to http://intel.com/pressroom/kits/quickrefyr.htm
 	for a quick reference of year to clock speed.
