@@ -223,9 +223,9 @@ namespace OldCPUEmulatorGUI {
             refreshHzNumericUpDown.Maximum = Math.Max((uint)maxRefreshHz, refreshHzNumericUpDown.Minimum);
             // we do this after in case the Refresh Rate before was well above the maximum
             if (refreshRateFloorFifteenCheckBox.Checked) {
+                refreshHzNumericUpDown.Minimum = 15;
                 refreshHzNumericUpDown.Increment = 15;
                 refreshHzNumericUpDown.Value = MathUtils.clamp((uint)Math.Floor(refreshHzNumericUpDown.Value / 15) * 15, (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
-                refreshHzNumericUpDown.Minimum = 15;
                 refreshHzNumericUpDown.Maximum = MathUtils.clamp((uint)Math.Floor(refreshHzNumericUpDown.Maximum / 15) * 15, (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
             }
             showRefreshRateMinimumMaximum();
