@@ -188,12 +188,12 @@ namespace OldCPUEmulatorGUI {
                 refreshHzMaximumGroupBox.Visible = true;
             } else {
                 refreshHzMaximumGroupBox.Visible = false;
-                if (refreshHzNumericUpDown.Value == refreshHzNumericUpDown.Minimum) {
-                    refreshHzMinimumNumericUpDown.Controls[0].Enabled = false;
-                    refreshHzMinimumGroupBox.Visible = true;
-                } else {
-                    refreshHzMinimumGroupBox.Visible = false;
-                }
+            }
+            if (refreshHzNumericUpDown.Value == refreshHzNumericUpDown.Minimum) {
+                refreshHzMinimumNumericUpDown.Controls[0].Enabled = false;
+                refreshHzMinimumGroupBox.Visible = true;
+            } else {
+                refreshHzMinimumGroupBox.Visible = false;
             }
         }
 
