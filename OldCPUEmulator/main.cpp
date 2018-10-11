@@ -7,20 +7,20 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	hJob = CreateJobObject(NULL, NULL);
 	// CreateJobObject returns NULL, not INVALID_HANDLE_VALUE
 	if (!hJob) {
-		consoleLog("Failed to create Job Object", true, false, true);
+		consoleLog("Failed to Create Job Object", true, false, true);
 		return false;
 	}
 	// this is how we kill both processes if either ends
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobobjectExtendedLimitInformation = {};
 	jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation))) {
-		consoleLog("Failed to set Job Object Information", true, false, true);
+		consoleLog("Failed to Set Job Object Information", true, false, true);
 		return false;
 	}
 	// assign the current process to the job object
 	// we assign the synced process later
 	if (!AssignProcessToJobObject(hJob, GetCurrentProcess())) {
-		consoleLog("Failed to assign Current Process to Job Object", true, false, true);
+		consoleLog("Failed to Assign Current Process to Job Object", true, false, true);
 		return false;
 	}
 
@@ -39,7 +39,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	if (!CreateProcess(NULL, lpCommandLine, NULL, NULL, TRUE, 0, NULL, NULL, &syncedProcessStartupInformation, &syncedProcessStartedInformation)
 		|| syncedProcessStartedInformation.hProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessStartedInformation.hThread == INVALID_HANDLE_VALUE) {
-		consoleLog("Failed to create Synced Process", true, false, true);
+		consoleLog("Failed to Create Process", true, false, true);
 		return false;
 	}
 	// get the handles and the ID
@@ -47,7 +47,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	syncedProcessMainThread = syncedProcessStartedInformation.hThread;
 	if (!syncedProcessMainThreadOnly) {
 		if (!CloseHandle(syncedProcessMainThread)) {
-			consoleLog("Failed to close Synced Process's Main Thread", true, false, true);
+			consoleLog("Failed to Close Process's Main Thread", true, false, true);
 			return false;
 		}
 	}
@@ -56,7 +56,7 @@ bool createSyncedProcess(LPSTR lpCommandLine, HANDLE &syncedProcess, HANDLE &syn
 	// assign the synced process to the job object
 	// we've now set up the job process
 	if (!AssignProcessToJobObject(hJob, syncedProcess)) {
-		consoleLog("Failed to assign Synced Process to Job Object", true, false, true);
+		consoleLog("Failed to Assign Process To Job Object", true, false, true);
 		return false;
 	}
 	return true;
@@ -67,7 +67,7 @@ bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThre
 	if (syncedProcessMainThreadOnly) {
 		if (syncedProcessMainThread != INVALID_HANDLE_VALUE) {
 			if (!CloseHandle(syncedProcessMainThread)) {
-				consoleLog("Failed to close Synced Process's Main Thread", true, false, true);
+				consoleLog("Failed to Close Process's Main Thread", true, false, true);
 				return false;
 			}
 		}
@@ -75,12 +75,12 @@ bool terminateSyncedProcess(HANDLE &syncedProcess, HANDLE &syncedProcessMainThre
 	// if not already closed
 	if (syncedProcess != INVALID_HANDLE_VALUE) {
 		if (!TerminateProcess(syncedProcess, -1)) {
-			consoleLog("Failed to terminate Synced Process", true, false, true);
+			consoleLog("Failed to Terminate Process", true, false, true);
 			return false;
 		}
 	}
 	if (hJob != INVALID_HANDLE_VALUE) {
-		consoleLog("Failed to close Job Object", true, false, true);
+		consoleLog("Failed to Close Job Object", true, false, true);
 		CloseHandle(hJob);
 	}
 	return true;
@@ -97,6 +97,7 @@ bool openSyncedProcessThread(DWORD syncedProcessThreadID, std::vector<HANDLE> &s
 		// push it to the back of the others
 		syncedProcessThreads.push_back(syncedProcessThread);
 	} else {
+		consoleLog("Failed to Open Process's Thread", true, false, true);
 		return false;
 	}
 	return true;
@@ -106,6 +107,7 @@ bool closeSyncedProcessThread(unsigned int i, std::vector<HANDLE> &syncedProcess
 	//consoleLog("Closing Synced Process Thread");
 	if (syncedProcessThreads[i] != INVALID_HANDLE_VALUE) {
 		if (!CloseHandle(syncedProcessThreads[i])) {
+			consoleLog("Failed to Close Process's Thread", true, false, true);
 			return false;
 		}
 	}
@@ -113,20 +115,17 @@ bool closeSyncedProcessThread(unsigned int i, std::vector<HANDLE> &syncedProcess
 	return true;
 }
 
-bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s, DOUBLE suspend, DOUBLE resume, bool refreshHzFloorFifteen) {
+bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &suspendMs, UINT &resumeMs, UINT &ms, UINT &s, DOUBLE suspend, DOUBLE resume, bool refreshHzFloorFifteen) {
 	consoleLog("Beginning Refresh Time Period");
 	TIMECAPS devCaps;
 	if (timeGetDevCaps(&devCaps, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
-		consoleLog("Failed to get Time Dev Caps", true, false, true);
+		consoleLog("Failed to Get Time Dev Caps", true, false, true);
 		return false;
 	}
 	// one millisecond (approximately)
 	ms = clamp(ms, devCaps.wPeriodMin, devCaps.wPeriodMax);
 	// one second (approximately)
 	s = clamp(s, devCaps.wPeriodMin, devCaps.wPeriodMax);
-	if (timeBeginPeriod(ms) != TIMERR_NOERROR) {
-		return false;
-	}
 	// if we're suspended 3 / 4
 	// and resumed 1 / 4
 	// we'll be suspended a minimum of 3 Ms
@@ -141,14 +140,38 @@ bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &ms, UINT &s,
 		refreshHz = clamp(min(((refreshHz + 8) / 15) * 15, maxRefreshHz), ms, s);
 	}
 	refreshMs = clamp((DOUBLE)s / (DOUBLE)refreshHz, ceil(minRefreshMs), s);
+	suspendMs = max(suspend * refreshMs, 1);
+	resumeMs = max(resume * refreshMs, 1);
+	// if suspendMs is divisible by resumeMs or vice versa
+	if (!(suspendMs % resumeMs) || !(resumeMs % suspendMs)) {
+		// set precision to highest value that will work for both suspend/resume time
+		if (timeBeginPeriod(min(suspendMs, resumeMs)) != TIMERR_NOERROR) {
+			consoleLog("Failed to Begin Time Period", true, false, true);
+			return false;
+		}
+	} else {
+		// well, everything is divisible by one
+		if (timeBeginPeriod(ms) != TIMERR_NOERROR) {
+			consoleLog("Failed to Begin Time Period", true, false, true);
+			return false;
+		}
+	}
 	return true;
 }
 
-bool endRefreshTimePeriod(UINT ms) {
+bool endRefreshTimePeriod(UINT &suspendMs, UINT &resumeMs, UINT ms) {
 	consoleLog("Ending Refresh Time Period");
-	if (timeEndPeriod(ms) != TIMERR_NOERROR) {
-		consoleLog("Failed to end Refresh Time Period", true, false, true);
-		return false;
+	// find same value as before
+	if (!(suspendMs % resumeMs) || !(resumeMs % suspendMs)) {
+		if (timeEndPeriod(min(suspendMs, resumeMs)) != TIMERR_NOERROR) {
+			consoleLog("Failed to End Time Period", true, false, true);
+			return false;
+		}
+	} else {
+		if (timeEndPeriod(ms) != TIMERR_NOERROR) {
+			consoleLog("Failed to End Time Period", true, false, true);
+			return false;
+		}
 	}
 	return true;
 }
@@ -185,7 +208,7 @@ bool syncProcess(HWND hWnd,
 					// use it on Windows ME or lower
 					HANDLE syncedProcessThreadSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
 					if (syncedProcessThreadSnapshot == INVALID_HANDLE_VALUE) {
-						consoleLog("Failed to create Synced Process Thread Snapshot", true, false, true);
+						consoleLog("Failed to Create Synced Process Thread Snapshot", true, false, true);
 						return false;
 					}
 
@@ -194,7 +217,7 @@ bool syncProcess(HWND hWnd,
 					syncedProcessThreadWalker.dwSize = sizeof(THREADENTRY32);
 
 					if (!Thread32First(syncedProcessThreadSnapshot, &syncedProcessThreadWalker)) {
-						consoleLog("Failed to close Synced Process Thread Snapshot", true, false, true);
+						consoleLog("Failed to Close Synced Process Thread Snapshot", true, false, true);
 						CloseHandle(syncedProcessThreadSnapshot);
 						return false;
 					}
@@ -216,7 +239,7 @@ bool syncProcess(HWND hWnd,
 					// create the buffer of that size
 					LPVOID lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
 					if (!lpSystemProcessInformationOutputBuffer) {
-						consoleLog("Failed to create System Process Information Output Buffer", true, false, true);
+						consoleLog("Failed to Create System Process Information Output Buffer", true, false, true);
 						return false;
 					}
 					NTSTATUS NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
@@ -227,14 +250,14 @@ bool syncProcess(HWND hWnd,
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = new BYTE[sizeOfLpSystemProcessInformationOutputBuffer];
 						if (!lpSystemProcessInformationOutputBuffer) {
-							consoleLog("Failed to create System Process Information Output Buffer", true, false, true);
+							consoleLog("Failed to Create System Process Information Output Buffer", true, false, true);
 							return false;
 						}
 						NtStatus = originalNtQuerySystemInformation(SystemProcessInformation, lpSystemProcessInformationOutputBuffer, sizeOfLpSystemProcessInformationOutputBuffer, NULL);
 					}
 					// check it worked
 					if (NtStatus != STATUS_SUCCESS) {
-						consoleLog("Failed to query System Information", true, false, true);
+						consoleLog("Failed to Query System Information", true, false, true);
 						delete[] lpSystemProcessInformationOutputBuffer;
 						lpSystemProcessInformationOutputBuffer = NULL;
 						return false;
@@ -262,7 +285,7 @@ bool syncProcess(HWND hWnd,
 							}
 							if (!lpSystemProcessInformation->NextEntryOffset) {
 								// there is no next process and we didn't loop through any threads
-								consoleLog("Failed to go to Synced Process's System Process Information", true, false, true);
+								consoleLog("Failed to Go To Synced Process's System Process Information", true, false, true);
 								delete[] lpSystemProcessInformationOutputBuffer;
 								lpSystemProcessInformationOutputBuffer = NULL;
 								lpSystemProcessInformation = NULL;
@@ -287,7 +310,7 @@ bool syncProcess(HWND hWnd,
 		}
 		// set the timeout for the next time to run this function
 		if (!timeSetEvent(suspendMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-			consoleLog("Failed to set Time Event after suspending Synced Process", true, false, true);
+			consoleLog("Failed to Set Time Event After Suspending Synced Process", true, false, true);
 			return false;
 		}
 	} else {
@@ -318,7 +341,7 @@ bool syncProcess(HWND hWnd,
 			ResumeThread(syncedProcessMainThread);
 		}
 		if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-			consoleLog("Failed to set Time Event after resuming Synced Process", true, false, true);
+			consoleLog("Failed to Set Time Event After Resuming Synced Process", true, false, true);
 			return false;
 		}
 	}
@@ -332,13 +355,13 @@ bool getCurrentMhz(ULONG &currentMhz) {
 	const int SIZE_OF_PROCESSOR_POWER_INFORMATION = sizeof(PROCESSOR_POWER_INFORMATION) * systemInfo.dwNumberOfProcessors;
 	PVOID lpProcessorPowerInformationOutputBuffer = new BYTE[SIZE_OF_PROCESSOR_POWER_INFORMATION];
 	if (!lpProcessorPowerInformationOutputBuffer) {
-		consoleLog("Failed to create Processor Power Information Output Buffer", true, false, true);
+		consoleLog("Failed to Create Processor Power Information Output Buffer", true, false, true);
 		return false;
 	}
 
 	// TODO: we assume all CPU cores have the same clock speed (it's not normal for anything else to be true right?)
 	if (CallNtPowerInformation(ProcessorInformation, NULL, NULL, lpProcessorPowerInformationOutputBuffer, SIZE_OF_PROCESSOR_POWER_INFORMATION) != STATUS_SUCCESS) {
-		consoleLog("Failed to call NtPowerInformation", true, false, true);
+		consoleLog("Failed to Call NtPowerInformation", true, false, true);
 		delete[] lpProcessorPowerInformationOutputBuffer;
 		lpProcessorPowerInformationOutputBuffer = NULL;
 		return false;
@@ -360,7 +383,7 @@ bool setProcessAffinity(HANDLE process, byte affinity) {
 	DWORD_PTR processAffinityMask = NULL;
 	DWORD_PTR systemAffinityMask = NULL;
 	if (!GetProcessAffinityMask(process, &processAffinityMask, &systemAffinityMask)) {
-		consoleLog("Failed to get Process Affinity Mask", true, false, true);
+		consoleLog("Failed to Get Process Affinity Mask", true, false, true);
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -378,7 +401,7 @@ bool setProcessAffinity(HANDLE process, byte affinity) {
 		}
 	}
 	if (!SetProcessAffinityMask(process, processAffinityMask)) {
-		consoleLog("Failed to set Process Affinity Mask", true, false, true);
+		consoleLog("Failed to Set Process Affinity Mask", true, false, true);
 		processAffinityMask = NULL;
 		systemAffinityMask = NULL;
 		return false;
@@ -410,7 +433,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.4.2");
+	consoleLog("Old CPU Emulator 1.4.3");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;
@@ -430,7 +453,7 @@ int main(int argc, char** argv) {
 	} else if (argString == "--dev-get-current-mhz") {
 		if (!getCurrentMhz(currentMhz)
 			|| !currentMhz) {
-			consoleLog("Failed to get Current Rate");
+			consoleLog("Failed to Get Current Rate");
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -452,7 +475,7 @@ int main(int argc, char** argv) {
 		if (argString == "--dev-get-current-mhz") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
-				consoleLog("Failed to get Current Rate");
+				consoleLog("Failed to Get Current Rate");
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -3;
 			}
@@ -462,7 +485,7 @@ int main(int argc, char** argv) {
 		} else if (argString == "-t") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
-				consoleLog("Failed to get Current Rate", true, false, true);
+				consoleLog("Failed to Get Current Rate", true, false, true);
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -1;
 			}
@@ -542,7 +565,7 @@ int main(int argc, char** argv) {
 
 	if (setProcessPriorityHigh) {
 		if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS)) {
-			consoleLog("Failed to set Synced Process Priority", true, false, true);
+			consoleLog("Failed to Set Synced Process Priority", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -556,13 +579,13 @@ int main(int argc, char** argv) {
 	windowClassEx.lpszClassName = "OLD_CPU_EMULATOR";
 	HWND hWnd = NULL;
 	if (!RegisterClassEx(&windowClassEx)) {
-		consoleLog("Failed to register the Window Class", true, false, true);
+		consoleLog("Failed to Register Window Class", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	} else {
 		hWnd = CreateWindowEx(WS_OVERLAPPED, windowClassEx.lpszClassName, "Old CPU Emulator", WS_CHILD, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, HWND_MESSAGE, NULL, hInstance, NULL);
 		if (!hWnd) {
-			consoleLog("Failed to create the Message Only Window", true, false, true);
+			consoleLog("Failed to Create Message Only Window", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -581,33 +604,37 @@ int main(int argc, char** argv) {
 	if (!createSyncedProcess((LPSTR)argv[1], syncedProcess, syncedProcessMainThread, syncedProcessID, syncedProcessMainThreadOnly, hJob)
 		|| syncedProcess == INVALID_HANDLE_VALUE
 		|| syncedProcessMainThread == INVALID_HANDLE_VALUE) {
-		consoleLog("Failed to create the Synced Process", true, false, true);
+		consoleLog("Failed to Create Synced Process", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
 		return -1;
 	}
 
 	if (setSyncedProcessAffinityOne) {
 		if (!setProcessAffinity(syncedProcess, 1)) {
-			consoleLog("Failed to set Synced Process Affinity", true, false, true);
+			consoleLog("Failed to Set Synced Process Affinity", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
-			terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+			if (!terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob)) {
+				consoleLog("Failed to Terminate Synced Process", true, false, true);
+			}
 			return -1;
 		}
 	}
 
 	UINT refreshMs = 0;
+	UINT suspendMs = 0;
+	UINT resumeMs = 0;
 	UINT ms = 1;
 	UINT s = 1000;
 	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
 	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
-	if (!beginRefreshTimePeriod(refreshHz, refreshMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
-		consoleLog("Failed to begin Refresh Time Period", true, false, true);
+	if (!beginRefreshTimePeriod(refreshHz, refreshMs, suspendMs, resumeMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
+		consoleLog("Failed to Begin Refresh Time Period", true, false, true);
 		ReleaseMutex(oldCPUEmulatorMutex);
-		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+		if (!terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob)) {
+			consoleLog("Failed to Terminate Synced Process", true, false, true);
+		}
 		return -1;
 	}
-	UINT suspendMs = suspend * refreshMs;
-	UINT resumeMs = resume * refreshMs;
 
 	// determine mode if relevant
 	if (!syncedProcessMainThreadOnly) {
@@ -630,10 +657,14 @@ int main(int argc, char** argv) {
 	MSG message = {};
 	// incite the timer that will begin syncing the process
 	if (!timeSetEvent(resumeMs, 0, OneShotTimer, (DWORD)hWnd, TIME_ONESHOT)) {
-		consoleLog("Failed to set Time Event before syncing the Synced Process", true, false, true);
-		endRefreshTimePeriod(ms);
+		consoleLog("Failed to Set Time Event Before Syncing Synced Process", true, false, true);
+		if (!endRefreshTimePeriod(suspendMs, resumeMs, ms)) {
+			consoleLog("Failed to End Refresh Time Period", true, false, true);
+		}
 		ReleaseMutex(oldCPUEmulatorMutex);
-		terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+		if (!terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob)) {
+			consoleLog("Failed to Terminate Synced Process", true, false, true);
+		}
 		return -1;
 	}
 	// while the process is active
@@ -654,17 +685,23 @@ int main(int argc, char** argv) {
 					originalNtQuerySystemInformation,
 					originalNtSuspendProcess,
 					originalNtResumeProcess)) {
-					consoleLog("Failed to sync the Synced Process", true, false, true);
-					endRefreshTimePeriod(ms);
+					consoleLog("Failed to Sync Synced Process", true, false, true);
+					if (!endRefreshTimePeriod(suspendMs, resumeMs, ms)) {
+						consoleLog("Failed to End Refresh Time Period", true, false, true);
+					}
 					ReleaseMutex(oldCPUEmulatorMutex);
-					terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
+					if (!terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob)) {
+						consoleLog("Failed to Terminate Synced Process", true, false, true);
+					}
 					return -1;
 				}
 			}
 		}
 	}
 
-	endRefreshTimePeriod(ms);
+	if (!endRefreshTimePeriod(suspendMs, resumeMs, ms)) {
+		consoleLog("Failed to End Refresh Time Period", true, false, true);
+	}
 	ReleaseMutex(oldCPUEmulatorMutex);
 	//terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob);
 	return 0;

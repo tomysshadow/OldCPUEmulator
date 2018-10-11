@@ -1,0 +1,22 @@
+Log name: "nesquiksnow0.dcr.log"
+
+compile time: 10:26:15   Dec 21 2000
+1st log time: 01:17:23   Oct 11 2018 
+
+Module C:\Users\Anthony\Games\Shockwave.com\Tiny\Nesquik Chocolate Mountain Challenge - Ezone\nesquiksnow.exe, run by Anthony 
+
+Windows version: NT rel 6.2 
+CPU: Intel 586 at ~ 2811 MHz
+num CPUs: 4 
+physical memory: 2048 Mb
+virtual memory: 0 Mb
+
+VRAM:
+ RegOpenKeyEx error
+ org resolution: 1920 x 1080 x 32 
+ RGB mask:       8/8/8 
+ total VRAM:     -64 Kb 
+ free VRAM:      -8164 Kb 
+
+*** machine specs end ***
+
