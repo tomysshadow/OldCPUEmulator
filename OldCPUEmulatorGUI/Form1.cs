@@ -160,7 +160,10 @@ namespace OldCPUEmulatorGUI {
                     case 0:
                     break;
                     case -1:
-                    MessageBox.Show(oldCPUEmulatorProcessStandardError.Split('\n').Last());
+                    string lastOldCPUEmulatorProcessStandardError = oldCPUEmulatorProcessStandardError.Split('\n').Last();
+                    if (!string.IsNullOrEmpty(lastOldCPUEmulatorProcessStandardError)) {
+                        MessageBox.Show(oldCPUEmulatorProcessStandardError.Split('\n').Last());
+                    }
                     return false;
                     case -2:
                     MessageBox.Show("You cannot run multiple instances of Old CPU Emulator.");
