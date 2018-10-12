@@ -121,6 +121,6 @@ c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemul
 c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(140): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(142): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(142): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(143): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(144): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(145): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(146): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
   OldCPUEmulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\Debug\OldCPUEmulator.exe

@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(256, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Emulator 1.4.3";
+            this.titleLabel.Text = "Old CPU Emulator 1.4.4";
             // 
             // subtitleLabel
             // 
@@ -111,8 +111,8 @@
             this.optionsGroupBox.Controls.Add(this.refreshRateFloorFifteenCheckBox);
             this.optionsGroupBox.Controls.Add(this.setSyncedProcessAffinityOneCheckBox);
             this.optionsGroupBox.Controls.Add(this.setProcessPriorityHighCheckBox);
-            this.optionsGroupBox.Controls.Add(this.refreshHzLabel);
             this.optionsGroupBox.Controls.Add(this.refreshHzGroupBox);
+            this.optionsGroupBox.Controls.Add(this.refreshHzLabel);
             this.optionsGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.optionsGroupBox.Location = new System.Drawing.Point(12, 277);
             this.optionsGroupBox.Name = "optionsGroupBox";
@@ -369,10 +369,11 @@
             this.Controls.Add(this.recentFilesGroupBox);
             this.Controls.Add(this.targetMhzComboBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "Old CPU Emulator 1.4.3";
+            this.Text = "Old CPU Emulator 1.4.4";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.recentFilesGroupBox.ResumeLayout(false);
             this.optionsGroupBox.ResumeLayout(false);

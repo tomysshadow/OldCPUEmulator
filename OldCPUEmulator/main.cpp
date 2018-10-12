@@ -140,8 +140,11 @@ bool beginRefreshTimePeriod(UINT &refreshHz, UINT &refreshMs, UINT &suspendMs, U
 		refreshHz = clamp(min(((refreshHz + 8) / 15) * 15, maxRefreshHz), ms, s);
 	}
 	refreshMs = clamp((DOUBLE)s / (DOUBLE)refreshHz, ceil(minRefreshMs), s);
-	suspendMs = max(suspend * refreshMs, 1);
-	resumeMs = max(resume * refreshMs, 1);
+
+	// should never in any circumstance be lower than ms
+	suspendMs = max(suspend * refreshMs, ms);
+	resumeMs = max(resume * refreshMs, ms);
+
 	// if suspendMs is divisible by resumeMs or vice versa
 	if (!(suspendMs % resumeMs) || !(resumeMs % suspendMs)) {
 		// set precision to highest value that will work for both suspend/resume time
@@ -433,7 +436,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.4.3");
+	consoleLog("Old CPU Emulator 1.4.4");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;
