@@ -34,6 +34,7 @@ namespace OldCPUEmulatorGUI {
                 newButton_Click();
                 return true;
             }
+
             if (keyData == (Keys.G)) {
                 goButton_Click();
                 return true;
@@ -53,12 +54,14 @@ namespace OldCPUEmulatorGUI {
             oldCPUEmulatorProcessStartInfo.CreateNoWindow = true;
             oldCPUEmulatorProcessStartInfo.ErrorDialog = false;
             oldCPUEmulatorProcessStartInfo.WorkingDirectory = Environment.CurrentDirectory;
+
             try {
                 Process oldCPUEmulatorProcess = new Process();
                 oldCPUEmulatorProcess.StartInfo = oldCPUEmulatorProcessStartInfo;
                 oldCPUEmulatorProcess.Start();
                 string oldCPUEmulatorProcessStandardOutput = oldCPUEmulatorProcess.StandardOutput.ReadToEnd();
                 oldCPUEmulatorProcess.WaitForExit();
+
                 if (oldCPUEmulatorProcess.ExitCode != 0 || !long.TryParse(oldCPUEmulatorProcessStandardOutput.Split('\n').Last(), out currentMhz)) {
                     MessageBox.Show("Failed to get the Current Rate");
                     return false;
@@ -81,10 +84,12 @@ namespace OldCPUEmulatorGUI {
         private bool getMhz(out long targetMhz, out long currentMhz) {
             targetMhz = 0;
             currentMhz = 0;
+
             if (!getCurrentMhz(out currentMhz)) {
                 Application.Exit();
                 return false;
             }
+
             // ensure the Target Rate Combo Box's Selected Item is less than the Current Rate
             switch (targetMhzComboBox.SelectedIndex) {
                 case 0:
@@ -101,10 +106,12 @@ namespace OldCPUEmulatorGUI {
                 }
                 break;
             }
+
             if (targetMhz < 1) {
                 MessageBox.Show("The Target Rate cannot be less than one.");
                 return false;
             }
+
             if (currentMhz <= targetMhz) {
                 MessageBox.Show("The Target Rate cannot exceed or equal the Current Rate of " + currentMhzValueLabel.Text + ".");
                 //targetMhzComboBox.SelectedIndex = 2;
@@ -120,21 +127,26 @@ namespace OldCPUEmulatorGUI {
 
             long targetMhz = 0;
             long currentMhz = 0;
+
             if (!getMhz(out targetMhz, out currentMhz)) {
                 return false;
             }
-            oldCPUEmulatorProcessStartInfoArguments += " -t " + targetMhz;
 
+            oldCPUEmulatorProcessStartInfoArguments += " -t " + targetMhz;
             oldCPUEmulatorProcessStartInfoArguments += " -r " + refreshHzNumericUpDown.Value;
+
             if (setProcessPriorityHighCheckBox.Checked) {
                 oldCPUEmulatorProcessStartInfoArguments += " --set-process-priority-high";
             }
+
             if (setSyncedProcessAffinityOneCheckBox.Checked) {
                 oldCPUEmulatorProcessStartInfoArguments += " --set-synced-process-affinity-one";
             }
+
             if (syncedProcessMainThreadOnlyCheckBox.Checked) {
                 oldCPUEmulatorProcessStartInfoArguments += " --synced-process-main-thread-only";
             }
+
             if (refreshRateFloorFifteenCheckBox.Checked) {
                 oldCPUEmulatorProcessStartInfoArguments += " --refresh-rate-floor-fifteen";
             }
@@ -149,6 +161,7 @@ namespace OldCPUEmulatorGUI {
             oldCPUEmulatorProcessStartInfo.CreateNoWindow = true;
             oldCPUEmulatorProcessStartInfo.ErrorDialog = false;
             oldCPUEmulatorProcessStartInfo.WorkingDirectory = Environment.CurrentDirectory;
+
             try {
                 // create the Old CPU Emulator Process
                 Process oldCPUEmulatorProcess = new Process();
@@ -156,11 +169,13 @@ namespace OldCPUEmulatorGUI {
                 oldCPUEmulatorProcess.Start();
                 string oldCPUEmulatorProcessStandardError = oldCPUEmulatorProcess.StandardError.ReadToEnd();
                 oldCPUEmulatorProcess.WaitForExit();
+
                 switch (oldCPUEmulatorProcess.ExitCode) {
                     case 0:
                     break;
                     case -1:
                     string lastOldCPUEmulatorProcessStandardError = oldCPUEmulatorProcessStandardError.Split('\n').Last();
+
                     if (!string.IsNullOrEmpty(lastOldCPUEmulatorProcessStandardError)) {
                         MessageBox.Show(oldCPUEmulatorProcessStandardError.Split('\n').Last());
                     }
@@ -192,6 +207,7 @@ namespace OldCPUEmulatorGUI {
             } else {
                 refreshHzMaximumGroupBox.Visible = false;
             }
+
             if (refreshHzNumericUpDown.Value == refreshHzNumericUpDown.Minimum) {
                 refreshHzMinimumNumericUpDown.Controls[0].Enabled = false;
                 refreshHzMinimumGroupBox.Visible = true;
@@ -203,6 +219,7 @@ namespace OldCPUEmulatorGUI {
         void floorRefreshRateFifteen() {
             long currentMhz = 0;
             long targetMhz = 0;
+
             if (!getMhz(out targetMhz, out currentMhz)) {
                 return;
             }
@@ -224,6 +241,7 @@ namespace OldCPUEmulatorGUI {
             double maxRefreshHz = (double)refreshHzNumericUpDown.Maximum / Math.Ceiling(minRefreshMs);
             refreshHzNumericUpDown.Value = MathUtils.clamp(Math.Min((uint)refreshHzNumericUpDown.Value, (uint)maxRefreshHz), (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
             refreshHzNumericUpDown.Maximum = Math.Max((uint)maxRefreshHz, refreshHzNumericUpDown.Minimum);
+
             // we do this after in case the Refresh Rate before was well above the maximum
             if (refreshRateFloorFifteenCheckBox.Checked) {
                 refreshHzNumericUpDown.Minimum = 15;
@@ -231,6 +249,7 @@ namespace OldCPUEmulatorGUI {
                 refreshHzNumericUpDown.Value = MathUtils.clamp((uint)Math.Floor(refreshHzNumericUpDown.Value / 15) * 15, (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
                 refreshHzNumericUpDown.Maximum = MathUtils.clamp((uint)Math.Floor(refreshHzNumericUpDown.Maximum / 15) * 15, (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
             }
+
             showRefreshRateMinimumMaximum();
         }
 
@@ -241,10 +260,12 @@ namespace OldCPUEmulatorGUI {
                         recentFilesListBox.Items.RemoveAt(i);
                         break;
                     }
+
                     if (i == 9) {
                         recentFilesListBox.Items.RemoveAt(9);
                     }
                 }
+
                 recentFilesListBox.Items.Insert(0, newOpenFileDialog.FileName);
                 recentFilesListBox.SelectedIndex = 0;
                 Properties.Settings.Default.oldCPUEmulatorSaveDataRecentFilesListBoxItemString0 = recentFilesListBox.Items[0].ToString();
@@ -276,10 +297,12 @@ namespace OldCPUEmulatorGUI {
 
         private void targetMhzComboBox_SelectedIndexChanged(object sender, EventArgs e) {
             targetMhzComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+
             if (targetMhzComboBox.SelectedIndex == targetMhzComboBox.Items.IndexOf("Custom Target Rate...")) {
                 targetMhzComboBox.DropDownStyle = ComboBoxStyle.DropDown;
                 targetMhzComboBox.Text = "1";
             }
+
             floorRefreshRateFifteen();
             refreshHzNumericUpDown.Value = refreshHzNumericUpDown.Maximum;
         }

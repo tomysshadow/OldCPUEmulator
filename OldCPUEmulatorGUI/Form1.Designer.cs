@@ -38,13 +38,13 @@
             this.refreshRateFloorFifteenCheckBox = new System.Windows.Forms.CheckBox();
             this.setSyncedProcessAffinityOneCheckBox = new System.Windows.Forms.CheckBox();
             this.setProcessPriorityHighCheckBox = new System.Windows.Forms.CheckBox();
-            this.refreshHzLabel = new System.Windows.Forms.Label();
             this.refreshHzGroupBox = new System.Windows.Forms.GroupBox();
             this.refreshHzMaximumGroupBox = new System.Windows.Forms.GroupBox();
             this.refreshHzMaximumNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.refreshHzMinimumGroupBox = new System.Windows.Forms.GroupBox();
             this.refreshHzMinimumNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.refreshHzNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.refreshHzLabel = new System.Windows.Forms.Label();
             this.targetMhzComboBox = new System.Windows.Forms.ComboBox();
             this.syncedProcessMainThreadOnlyCheckBox = new System.Windows.Forms.CheckBox();
             this.newButton = new System.Windows.Forms.Button();
@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(256, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Emulator 1.4.4";
+            this.titleLabel.Text = "Old CPU Emulator 1.4.5";
             // 
             // subtitleLabel
             // 
@@ -166,17 +166,6 @@
         "prove the accuracy of the emulation.");
             this.setProcessPriorityHighCheckBox.UseVisualStyleBackColor = true;
             // 
-            // refreshHzLabel
-            // 
-            this.refreshHzLabel.AutoSize = true;
-            this.refreshHzLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.refreshHzLabel.Location = new System.Drawing.Point(7, 20);
-            this.refreshHzLabel.Name = "refreshHzLabel";
-            this.refreshHzLabel.Size = new System.Drawing.Size(95, 13);
-            this.refreshHzLabel.TabIndex = 0;
-            this.refreshHzLabel.Text = "Refresh Rate (Hz:)";
-            this.helpToolTip.SetToolTip(this.refreshHzLabel, resources.GetString("refreshHzLabel.ToolTip"));
-            // 
             // refreshHzGroupBox
             // 
             this.refreshHzGroupBox.Controls.Add(this.refreshHzMaximumGroupBox);
@@ -258,6 +247,17 @@
             0,
             0});
             this.refreshHzNumericUpDown.ValueChanged += new System.EventHandler(this.refreshHzNumericUpDown_ValueChanged);
+            // 
+            // refreshHzLabel
+            // 
+            this.refreshHzLabel.AutoSize = true;
+            this.refreshHzLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.refreshHzLabel.Location = new System.Drawing.Point(7, 20);
+            this.refreshHzLabel.Name = "refreshHzLabel";
+            this.refreshHzLabel.Size = new System.Drawing.Size(95, 13);
+            this.refreshHzLabel.TabIndex = 0;
+            this.refreshHzLabel.Text = "Refresh Rate (Hz:)";
+            this.helpToolTip.SetToolTip(this.refreshHzLabel, resources.GetString("refreshHzLabel.ToolTip"));
             // 
             // targetMhzComboBox
             // 
@@ -373,7 +373,7 @@
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "Old CPU Emulator 1.4.4";
+            this.Text = "Old CPU Emulator 1.4.5";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.recentFilesGroupBox.ResumeLayout(false);
             this.optionsGroupBox.ResumeLayout(false);

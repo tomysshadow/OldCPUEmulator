@@ -7,8 +7,52 @@
 #include <ntstatus.h>
 #include <winternl.h>
 #include <TlHelp32.h>
-#include <Powerbase.h>
 #include <PowrProf.h>
+
+typedef LONG KPRIORITY;
+
+typedef struct _CLIENT_ID {
+	HANDLE UniqueProcess;
+	HANDLE UniqueThread;
+} CLIENT_ID;
+
+typedef struct ___SYSTEM_PROCESS_INFORMATION {
+	ULONG NextEntryOffset;
+	ULONG NumberOfThreads;
+	BYTE Reserved1[48];
+	UNICODE_STRING ImageName;
+	KPRIORITY BasePriority;
+	HANDLE UniqueProcessId;
+	PVOID Reserved2;
+	ULONG HandleCount;
+	ULONG SessionId;
+	PVOID Reserved3;
+	SIZE_T PeakVirtualSize;
+	SIZE_T VirtualSize;
+	ULONG Reserved4;
+	SIZE_T PeakWorkingSetSize;
+	SIZE_T WorkingSetSize;
+	PVOID Reserved5;
+	SIZE_T QuotaPagedPoolUsage;
+	PVOID Reserved6;
+	SIZE_T QuotaNonPagedPoolUsage;
+	SIZE_T PagefileUsage;
+	SIZE_T PeakPagefileUsage;
+	SIZE_T PrivatePageCount;
+	LARGE_INTEGER Reserved7[6];
+} __SYSTEM_PROCESS_INFORMATION, *__PSYSTEM_PROCESS_INFORMATION;
+
+typedef struct _SYSTEM_THREAD_INFORMATION {
+	LARGE_INTEGER Reserved1[3];
+	ULONG Reserved2;
+	PVOID StartAddress;
+	CLIENT_ID ClientId;
+	KPRIORITY Priority;
+	LONG BasePriority;
+	ULONG Reserved3;
+	ULONG ThreadState;
+	ULONG WaitReason;
+} SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 
 // we will be using some undocumented NtDll features if possible because they're faster
 // we need this program to be super optimized
@@ -35,13 +79,16 @@ void consoleLog(const char *buffer, int newline = true, int tab = false, bool er
 	for (int i = 0;i < tab;i++) {
 		consoleLog("\t", false, false, err);
 	}
+
 	if (!err) {
 		std::cout << buffer;
+
 		for (int i = 0;i < newline;i++) {
 			std::cout << std::endl;
 		}
 	} else {
 		std::cerr << buffer;
+
 		for (int i = 0;i < newline;i++) {
 			std::cerr << std::endl;
 		}
