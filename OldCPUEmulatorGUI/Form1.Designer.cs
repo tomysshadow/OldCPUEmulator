@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(256, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Emulator 1.4.5";
+            this.titleLabel.Text = "Old CPU Emulator 1.5.0";
             // 
             // subtitleLabel
             // 
@@ -373,7 +373,7 @@
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "Old CPU Emulator 1.4.5";
+            this.Text = "Old CPU Emulator 1.5.0";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.recentFilesGroupBox.ResumeLayout(false);
             this.optionsGroupBox.ResumeLayout(false);
