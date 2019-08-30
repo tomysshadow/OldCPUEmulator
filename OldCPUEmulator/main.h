@@ -9,6 +9,8 @@
 #include <TlHelp32.h>
 #include <PowrProf.h>
 
+#define _WIN32_WINNT 0x0500
+
 typedef LONG KPRIORITY;
 
 typedef struct _CLIENT_ID {

@@ -483,7 +483,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.5.0");
+	consoleLog("Old CPU Emulator 1.5.1");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;
