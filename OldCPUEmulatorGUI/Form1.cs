@@ -63,14 +63,14 @@ namespace OldCPUEmulatorGUI {
                 oldCPUEmulatorProcess.WaitForExit();
 
                 if (oldCPUEmulatorProcess.ExitCode != 0 || !long.TryParse(oldCPUEmulatorProcessStandardOutput.Split('\n').Last(), out currentMhz)) {
-                    MessageBox.Show("Failed to get the Current Rate");
+                    MessageBox.Show("Failed to Get Current Rate");
                     return false;
                 }
 
                 // set the Current Rate Value Label's Text to the Current Rate String
                 currentMhzValueLabel.Text = currentMhz.ToString();
             } catch (Exception e) {
-                MessageBox.Show("Failed to get the Current Rate");
+                MessageBox.Show("Failed to Get Current Rate");
                 return false;
             }
             return true;
@@ -174,27 +174,28 @@ namespace OldCPUEmulatorGUI {
                     case 0:
                     break;
                     case -1:
-                    string lastOldCPUEmulatorProcessStandardError = oldCPUEmulatorProcessStandardError.Split('\n').Last();
+                    string[] lastOldCPUEmulatorProcessStandardErrors = oldCPUEmulatorProcessStandardError.Split('\n');
+                    string lastOldCPUEmulatorProcessStandardError = lastOldCPUEmulatorProcessStandardErrors.Length < 2 ? null : lastOldCPUEmulatorProcessStandardErrors[lastOldCPUEmulatorProcessStandardErrors.Length - 2];
 
                     if (!string.IsNullOrEmpty(lastOldCPUEmulatorProcessStandardError)) {
-                        MessageBox.Show(oldCPUEmulatorProcessStandardError.Split('\n').Last());
+                        MessageBox.Show(lastOldCPUEmulatorProcessStandardError);
                     }
                     return false;
                     case -2:
                     MessageBox.Show("You cannot run multiple instances of Old CPU Emulator.");
                     return false;
                     case -3:
-                    MessageBox.Show("Failed to create a new C String");
+                    MessageBox.Show("Failed to Create New String");
                     return false;
                     case -4:
-                    MessageBox.Show("Failed to set a C String");
+                    MessageBox.Show("Failed to Set String");
                     return false;
                     default:
-                    MessageBox.Show("Failed to emulate the old CPU");
+                    MessageBox.Show("Failed to Emulate Old CPU");
                     return false;
                 }
             } catch (Exception e) {
-                MessageBox.Show("Failed to create the Old CPU Emulator Process");
+                MessageBox.Show("Failed to Create Old CPU Emulator Process");
                 return false;
             }
             return true;

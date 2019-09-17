@@ -147,7 +147,7 @@ void help() {
 	 consoleLog("but could also introduce instability with some games.", 2, true);
 
 	consoleLog("--refresh-rate-floor-fifteen");
-	 consoleLog("Rounds Refresh Rate to the nearest multiple of 15 if applicable.", true, true);
+	 consoleLog("Rounds Refresh Rate to the nearest multiple of 15 if applicable.", 2, true);
 }
 
 inline UINT clamp(UINT number, UINT min, UINT max) {

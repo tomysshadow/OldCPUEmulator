@@ -63,10 +63,13 @@ bool createSyncedProcess(LPSTR commandLinePointer, HANDLE &syncedProcess, HANDLE
 
 	// assign the synced process to the job object
 	// we've now set up the job process
+	// commented because Windows does this for us automatically
+	/*
 	if (!AssignProcessToJobObject(hJob, syncedProcess)) {
 		consoleLog("Failed to Assign Process To Job Object", true, false, true);
 		return false;
 	}
+	*/
 	return true;
 }
 
@@ -483,7 +486,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.5.1");
+	consoleLog("Old CPU Emulator 1.5.2");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;
@@ -504,7 +507,7 @@ int main(int argc, char** argv) {
 	} else if (argString == "--dev-get-current-mhz") {
 		if (!getCurrentMhz(currentMhz)
 			|| !currentMhz) {
-			consoleLog("Failed to Get Current Rate");
+			consoleLog("Failed to Get Current Rate", true, false, true);
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return -1;
 		}
@@ -529,7 +532,7 @@ int main(int argc, char** argv) {
 		if (argString == "--dev-get-current-mhz") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
-				consoleLog("Failed to Get Current Rate");
+				consoleLog("Failed to Get Current Rate", true, false, true);
 				ReleaseMutex(oldCPUEmulatorMutex);
 				return -3;
 			}
@@ -609,7 +612,7 @@ int main(int argc, char** argv) {
 			ReleaseMutex(oldCPUEmulatorMutex);
 			return 0;
 		} else {
-			consoleLog("Invalid argument: ", false, false, true);
+			consoleLog("Invalid Argument: ", false, false, true);
 			consoleLog(argv[i], 3, false, true);
 			help();
 			ReleaseMutex(oldCPUEmulatorMutex);
@@ -757,10 +760,13 @@ int main(int argc, char** argv) {
 					originalNtSuspendProcess,
 					originalNtResumeProcess)) {
 					consoleLog("Failed to Sync Synced Process", true, false, true);
+
 					if (!endRefreshTimePeriod(suspendMs, resumeMs, ms)) {
 						consoleLog("Failed to End Refresh Time Period", true, false, true);
 					}
+
 					ReleaseMutex(oldCPUEmulatorMutex);
+
 					if (!terminateSyncedProcess(syncedProcess, syncedProcessMainThread, syncedProcessMainThreadOnly, hJob)) {
 						consoleLog("Failed to Terminate Synced Process", true, false, true);
 					}
