@@ -1,4 +1,4 @@
-Old CPU Emulator 1.5.2
+Old CPU Emulator 1.5.3
 By Anthony Kleine
 
 	This command line tool emulates running a process on a CPU with a

@@ -1,4 +1,12 @@
 #include "main.h"
+#include <vector>
+#include <string>
+#include <windows.h>
+#include <math.h>
+#include <ntstatus.h>
+#include <TlHelp32.h>
+#include <PowrProf.h>
+#include <Shlwapi.h>
 
 bool createSyncedProcess(LPSTR commandLinePointer, HANDLE &syncedProcess, HANDLE &syncedProcessMainThread, DWORD &syncedProcessID, bool syncedProcessMainThreadOnly, HANDLE &hJob) {
 	consoleLog("Creating Synced Process");
@@ -30,6 +38,41 @@ bool createSyncedProcess(LPSTR commandLinePointer, HANDLE &syncedProcess, HANDLE
 	}
 
 	// this is where we create the synced process and get a handle to it and its main thread, as well as its ID
+	LPSTR path = new CHAR[MAX_PATH];
+
+	if (!path) {
+		consoleLog("Failed to Allocate path", true, false, true);
+		return false;
+	}
+
+	// SetCurrentDirectory may add a backslash if not present, so
+	// you must use MAX_PATH - 1 characters
+	if (strncpy_s(path, MAX_PATH - 1, commandLinePointer, MAX_PATH - 1)) {
+		consoleLog("Failed to Copy String Maximum", true, false, true);
+		delete[] path;
+		path = NULL;
+		return false;
+	}
+
+	while (!PathIsDirectory(path)) {
+		if (!PathRemoveFileSpec(path)) {
+			consoleLog("Failed to Remove File Spec", true, false, true);
+			delete[] path;
+			path = NULL;
+			return false;
+		}
+	}
+
+	if (!SetCurrentDirectory(path)) {
+		consoleLog("Failed to Set Current Directory", true, false, true);
+		delete[] path;
+		path = NULL;
+		return false;
+	}
+
+	delete[] path;
+	path = NULL;
+
 	STARTUPINFO syncedProcessStartupInformation;
 	PROCESS_INFORMATION syncedProcessStartedInformation;
 
@@ -486,7 +529,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Emulator 1.5.2");
+	consoleLog("Old CPU Emulator 1.5.3");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;

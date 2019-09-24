@@ -1,13 +1,7 @@
 #pragma once
 #include <iostream>
-#include <string>
-#include <vector>
-#include <math.h>
 #include <windows.h>
-#include <ntstatus.h>
 #include <winternl.h>
-#include <TlHelp32.h>
-#include <PowrProf.h>
 
 #define _WIN32_WINNT 0x0500
 

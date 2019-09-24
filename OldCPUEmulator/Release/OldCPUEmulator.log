@@ -1,5 +1,7 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Platforms\Win32\PlatformToolsets\v141_xp\Toolset.targets(39,5): warning MSB8051: Support for targeting Windows XP is deprecated and will not be present in future releases of Visual Studio. Please see https://go.microsoft.com/fwlink/?linkid=2023588 for more information.
   main.cpp
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.h(6): warning C4005: '_WIN32_WINNT': macro redefinition
+  c:\program files (x86)\microsoft sdks\windows\v7.1a\include\sdkddkver.h(197): note: see previous definition of '_WIN32_WINNT'
 c:\program files (x86)\microsoft sdks\windows\v7.1a\include\ntstatus.h(147): warning C4005: 'STATUS_WAIT_0': macro redefinition
   c:\program files (x86)\microsoft sdks\windows\v7.1a\include\winnt.h(1983): note: see previous definition of 'STATUS_WAIT_0'
 c:\program files (x86)\microsoft sdks\windows\v7.1a\include\ntstatus.h(199): warning C4005: 'STATUS_ABANDONED_WAIT_0': macro redefinition
@@ -110,17 +112,15 @@ c:\program files (x86)\microsoft sdks\windows\v7.1a\include\ntstatus.h(11904): w
   c:\program files (x86)\microsoft sdks\windows\v7.1a\include\winnt.h(2037): note: see previous definition of 'STATUS_SXS_EARLY_DEACTIVATION'
 c:\program files (x86)\microsoft sdks\windows\v7.1a\include\ntstatus.h(11913): warning C4005: 'STATUS_SXS_INVALID_DEACTIVATION': macro redefinition
   c:\program files (x86)\microsoft sdks\windows\v7.1a\include\winnt.h(2038): note: see previous definition of 'STATUS_SXS_INVALID_DEACTIVATION'
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.h(12): warning C4005: '_WIN32_WINNT': macro redefinition
-  c:\program files (x86)\microsoft sdks\windows\v7.1a\include\sdkddkver.h(197): note: see previous definition of '_WIN32_WINNT'
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(158): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(162): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(165): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(165): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(168): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
-c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(169): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(201): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(205): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(208): warning C4244: 'argument': conversion from 'double' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(208): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(211): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
+c:\users\anthony\documents\visual studio 2017\projects\oldcpuemulator\oldcpuemulator\main.cpp(212): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
   Generating code
-  0 of 333 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  2 of 333 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    10 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   OldCPUEmulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUEmulator\Release\OldCPUEmulator.exe
