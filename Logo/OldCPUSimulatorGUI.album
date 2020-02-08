@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Album>
+    <Header>
+        <Application Name="GLC_Player" Version="2.1"/>
+    </Header>
+    <Root>
+        <Model AFileName="C:/Users/Anthony/Documents/computer_screen__tube_by_tomysshadow-d6lyav0/Computer Screen Tube.dae" RFileName="Computer Screen Tube.dae">
+            <Camera Angle="35">
+                <Eye x="-297.44" y="-10450.9" z="293.724"/>
+                <Target x="12.9662" y="-10019.3" z="113.078"/>
+                <Up x="0.196543" y="0.25492" z="0.946777"/>
+                <DefaultUp x="0" y="0" z="1"/>
+            </Camera>
+            <Materials size="1">
+                <Material name="GraphicMaterial_1-effect">
+                    <Ambiant r="253" g="248" b="229" a="255"/>
+                    <Diffuse r="253" g="248" b="229" a="255"/>
+                    <Specular r="253" g="248" b="229" a="255"/>
+                    <LightEmission r="0" g="0" b="0" a="255"/>
+                    <Shininess value="128"/>
+                    <Texture fileName=""/>
+                </Material>
+            </Materials>
+            <InvisibleInstances size="0"/>
+            <Shaders size="0"/>
+        </Model>
+    </Root>
+</Album>
