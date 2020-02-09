@@ -6,10 +6,13 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace OldCPUSimulatorGUI {
     public partial class Form1 : Form {
+        ManualResetEvent ProcessExitedManualResetEvent = new ManualResetEvent(false);
+
         public Form1() {
             InitializeComponent();
         }
@@ -42,6 +45,10 @@ namespace OldCPUSimulatorGUI {
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        private void ProcessExited(object sender, EventArgs e) {
+            ProcessExitedManualResetEvent.Set();
+        }
+
         private bool getCurrentMhz(out long currentMhz) {
             currentMhz = 0;
             // create the Get Current Mhz Process to get the Current Rate
@@ -57,13 +64,18 @@ namespace OldCPUSimulatorGUI {
 
             try {
                 Process oldCPUSimulatorProcess = new Process();
+                EventHandler processExitedEventHandler = new EventHandler(ProcessExited);
+                oldCPUSimulatorProcess.Exited += processExitedEventHandler;
                 oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
                 oldCPUSimulatorProcess.Start();
                 string oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
 
                 if (!oldCPUSimulatorProcess.HasExited) {
-                    oldCPUSimulatorProcess.WaitForExit();
+                    ProcessExitedManualResetEvent.WaitOne();
                 }
+
+                oldCPUSimulatorProcess.Exited -= processExitedEventHandler;
+                ProcessExitedManualResetEvent.Reset();
 
                 if (oldCPUSimulatorProcess.ExitCode != 0 || !long.TryParse(oldCPUSimulatorProcessStandardOutput.Split('\n').Last(), out currentMhz)) {
                     MessageBox.Show("Failed to Get Current Rate");
@@ -168,10 +180,18 @@ namespace OldCPUSimulatorGUI {
             try {
                 // create the Old CPU Simulator Process
                 Process oldCPUSimulatorProcess = new Process();
+                EventHandler processExitedEventHandler = new EventHandler(ProcessExited);
+                oldCPUSimulatorProcess.Exited += processExitedEventHandler;
                 oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
                 oldCPUSimulatorProcess.Start();
                 string oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
-                oldCPUSimulatorProcess.WaitForExit();
+
+                if (!oldCPUSimulatorProcess.HasExited) {
+                    ProcessExitedManualResetEvent.WaitOne();
+                }
+
+                oldCPUSimulatorProcess.Exited -= processExitedEventHandler;
+                ProcessExitedManualResetEvent.Reset();
 
                 switch (oldCPUSimulatorProcess.ExitCode) {
                     case 0:
@@ -197,7 +217,7 @@ namespace OldCPUSimulatorGUI {
                     MessageBox.Show("Failed to Simulate Old CPU");
                     return false;
                 }
-            } catch (Exception e) {
+            } catch (Exception) {
                 MessageBox.Show("Failed to Create Old CPU Simulator Process");
                 return false;
             }

@@ -118,4 +118,5 @@ c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusim
 c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusimulator\main.cpp(208): warning C4244: 'argument': conversion from 'DOUBLE' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusimulator\main.cpp(211): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusimulator\main.cpp(212): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
+  LINK : C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUSimulator\Debug\OldCPUSimulator.exe not found or not built by the last incremental link; performing full link
   OldCPUSimulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUSimulator\Debug\OldCPUSimulator.exe

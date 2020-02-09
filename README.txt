@@ -1,4 +1,4 @@
-Old CPU Simulator 1.5.4
+Old CPU Simulator 1.5.5
 By Anthony Kleine
 
 	This command line tool simulates running a process on a CPU with a
@@ -52,4 +52,5 @@ Usage: OldCPUSimulator pathname.exe -t targetRate [options]
 --refresh-rate-floor-fifteen
 	Rounds Refresh Rate to the nearest multiple of 15 if applicable.
 	
+
 Notice: this tool was previously titled Old CPU Emulator. It was renamed because it is not an emulator.

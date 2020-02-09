@@ -529,7 +529,7 @@ int main(int argc, char** argv) {
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
-	consoleLog("Old CPU Simulator 1.5.4");
+	consoleLog("Old CPU Simulator 1.5.5");
 	consoleLog("By Anthony Kleine", 2);
 
 	ULONG currentMhz = 0;

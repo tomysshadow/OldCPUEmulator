@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(261, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Simulator 1.5.4";
+            this.titleLabel.Text = "Old CPU Simulator 1.5.5";
             // 
             // subtitleLabel
             // 
