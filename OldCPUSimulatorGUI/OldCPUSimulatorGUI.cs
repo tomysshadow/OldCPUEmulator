@@ -10,16 +10,14 @@ using System.Threading;
 using System.Windows.Forms;
 
 namespace OldCPUSimulatorGUI {
-    public partial class Form1 : Form {
-        ManualResetEvent ProcessExitedManualResetEvent = new ManualResetEvent(false);
-
-        public Form1() {
+    public partial class OldCPUSimulatorGUI : Form {
+        public OldCPUSimulatorGUI() {
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e) {
             targetMhzComboBox.SelectedIndex = 0;
-            floorRefreshRateFifteen();
+            FloorRefreshRateFifteen();
             recentFilesListBox.Items.Insert(0, Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString0);
             recentFilesListBox.Items.Insert(1, Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString1);
             recentFilesListBox.Items.Insert(2, Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString2);
@@ -34,23 +32,20 @@ namespace OldCPUSimulatorGUI {
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             if (keyData == (Keys.Control | Keys.N)) {
-                newButton_Click();
+                New();
                 return true;
             }
 
             if (keyData == (Keys.G)) {
-                goButton_Click();
+                Go();
                 return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void ProcessExited(object sender, EventArgs e) {
-            ProcessExitedManualResetEvent.Set();
-        }
-
-        private bool getCurrentMhz(out long currentMhz) {
+        private bool GetCurrentMhz(out long currentMhz) {
             currentMhz = 0;
+
             // create the Get Current Mhz Process to get the Current Rate
             ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", "--dev-get-current-mhz");
             oldCPUSimulatorProcessStartInfo.UseShellExecute = false;
@@ -64,18 +59,13 @@ namespace OldCPUSimulatorGUI {
 
             try {
                 Process oldCPUSimulatorProcess = new Process();
-                EventHandler processExitedEventHandler = new EventHandler(ProcessExited);
-                oldCPUSimulatorProcess.Exited += processExitedEventHandler;
                 oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
                 oldCPUSimulatorProcess.Start();
                 string oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
 
                 if (!oldCPUSimulatorProcess.HasExited) {
-                    ProcessExitedManualResetEvent.WaitOne();
+                    oldCPUSimulatorProcess.WaitForExit();
                 }
-
-                oldCPUSimulatorProcess.Exited -= processExitedEventHandler;
-                ProcessExitedManualResetEvent.Reset();
 
                 if (oldCPUSimulatorProcess.ExitCode != 0 || !long.TryParse(oldCPUSimulatorProcessStandardOutput.Split('\n').Last(), out currentMhz)) {
                     MessageBox.Show("Failed to Get Current Rate");
@@ -91,16 +81,16 @@ namespace OldCPUSimulatorGUI {
             return true;
         }
 
-        private bool getCurrentMhz() {
+        private bool GetCurrentMhz() {
             long currentMhz = 0;
-            return getCurrentMhz(out currentMhz);
+            return GetCurrentMhz(out currentMhz);
         }
 
-        private bool getMhz(out long targetMhz, out long currentMhz) {
+        private bool GetMhz(out long targetMhz, out long currentMhz) {
             targetMhz = 0;
             currentMhz = 0;
 
-            if (!getCurrentMhz(out currentMhz)) {
+            if (!GetCurrentMhz(out currentMhz)) {
                 Application.Exit();
                 return false;
             }
@@ -136,15 +126,15 @@ namespace OldCPUSimulatorGUI {
             return true;
         }
 
-        private bool createOldCPUSimulatorProcess() {
+        private void CreateOldCPUSimulatorProcess() {
             // create Arguments for the Old CPU Simulator Process Start Info
             string oldCPUSimulatorProcessStartInfoArguments = "\"" + recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem) + "\"";
 
             long targetMhz = 0;
             long currentMhz = 0;
 
-            if (!getMhz(out targetMhz, out currentMhz)) {
-                return false;
+            if (!GetMhz(out targetMhz, out currentMhz)) {
+                return;
             }
 
             oldCPUSimulatorProcessStartInfoArguments += " -t " + targetMhz;
@@ -180,51 +170,48 @@ namespace OldCPUSimulatorGUI {
             try {
                 // create the Old CPU Simulator Process
                 Process oldCPUSimulatorProcess = new Process();
-                EventHandler processExitedEventHandler = new EventHandler(ProcessExited);
-                oldCPUSimulatorProcess.Exited += processExitedEventHandler;
                 oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
+                // hide... our laziness with not being async
+                Hide();
                 oldCPUSimulatorProcess.Start();
-                string oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
 
                 if (!oldCPUSimulatorProcess.HasExited) {
-                    ProcessExitedManualResetEvent.WaitOne();
+                    oldCPUSimulatorProcess.WaitForExit();
                 }
 
-                oldCPUSimulatorProcess.Exited -= processExitedEventHandler;
-                ProcessExitedManualResetEvent.Reset();
+                Show();
 
                 switch (oldCPUSimulatorProcess.ExitCode) {
                     case 0:
                     break;
                     case -1:
+                    string oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
                     string[] lastOldCPUSimulatorProcessStandardErrors = oldCPUSimulatorProcessStandardError.Split('\n');
                     string lastOldCPUSimulatorProcessStandardError = lastOldCPUSimulatorProcessStandardErrors.Length < 2 ? null : lastOldCPUSimulatorProcessStandardErrors[lastOldCPUSimulatorProcessStandardErrors.Length - 2];
 
                     if (!string.IsNullOrEmpty(lastOldCPUSimulatorProcessStandardError)) {
                         MessageBox.Show(lastOldCPUSimulatorProcessStandardError);
                     }
-                    return false;
+                    break;
                     case -2:
                     MessageBox.Show("You cannot run multiple instances of Old CPU Simulator.");
-                    return false;
+                    break;
                     case -3:
                     MessageBox.Show("Failed to Create New String");
-                    return false;
+                    break;
                     case -4:
                     MessageBox.Show("Failed to Set String");
-                    return false;
+                    break;
                     default:
                     MessageBox.Show("Failed to Simulate Old CPU");
-                    return false;
+                    break;
                 }
             } catch (Exception) {
                 MessageBox.Show("Failed to Create Old CPU Simulator Process");
-                return false;
             }
-            return true;
         }
 
-        void showRefreshRateMinimumMaximum() {
+        void ShowRefreshRateMinimumMaximum() {
             if (refreshHzNumericUpDown.Value == refreshHzNumericUpDown.Maximum) {
                 refreshHzMaximumNumericUpDown.Controls[0].Enabled = false;
                 refreshHzMaximumGroupBox.Visible = true;
@@ -240,11 +227,11 @@ namespace OldCPUSimulatorGUI {
             }
         }
 
-        void floorRefreshRateFifteen() {
+        void FloorRefreshRateFifteen() {
             long currentMhz = 0;
             long targetMhz = 0;
 
-            if (!getMhz(out targetMhz, out currentMhz)) {
+            if (!GetMhz(out targetMhz, out currentMhz)) {
                 return;
             }
 
@@ -274,10 +261,10 @@ namespace OldCPUSimulatorGUI {
                 refreshHzNumericUpDown.Maximum = MathUtils.clamp((uint)Math.Floor(refreshHzNumericUpDown.Maximum / 15) * 15, (uint)refreshHzNumericUpDown.Minimum, (uint)refreshHzNumericUpDown.Maximum);
             }
 
-            showRefreshRateMinimumMaximum();
+            ShowRefreshRateMinimumMaximum();
         }
 
-        private void newButton_Click() {
+        private void New() {
             if (newOpenFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 for (byte i = 0;i < 10;i++) {
                     if (newOpenFileDialog.FileName == recentFilesListBox.Items[i].ToString()) {
@@ -303,20 +290,20 @@ namespace OldCPUSimulatorGUI {
                 Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString8 = recentFilesListBox.Items[8].ToString();
                 Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString9 = recentFilesListBox.Items[9].ToString();
                 Properties.Settings.Default.Save();
-                createOldCPUSimulatorProcess();
+                CreateOldCPUSimulatorProcess();
             }
         }
 
-        private void newButton_Click(object sender, EventArgs e) {
-            newButton_Click();
+        private void Go() {
+            CreateOldCPUSimulatorProcess();
         }
 
-        private void goButton_Click() {
-            createOldCPUSimulatorProcess();
+        private void newButton_Click(object sender, EventArgs e) {
+            New();
         }
 
         private void goButton_Click(object sender, EventArgs e) {
-            goButton_Click();
+            Go();
         }
 
         private void targetMhzComboBox_SelectedIndexChanged(object sender, EventArgs e) {
@@ -327,21 +314,21 @@ namespace OldCPUSimulatorGUI {
                 targetMhzComboBox.Text = "1";
             }
 
-            floorRefreshRateFifteen();
+            FloorRefreshRateFifteen();
             refreshHzNumericUpDown.Value = refreshHzNumericUpDown.Maximum;
         }
 
         private void targetMhzComboBox_TextUpdate(object sender, EventArgs e) {
-            floorRefreshRateFifteen();
+            FloorRefreshRateFifteen();
             refreshHzNumericUpDown.Value = refreshHzNumericUpDown.Maximum;
         }
 
         private void refreshRateFloorFifteenCheckBox_CheckedChanged(object sender, EventArgs e) {
-            floorRefreshRateFifteen();
+            FloorRefreshRateFifteen();
         }
 
         private void refreshHzNumericUpDown_ValueChanged(object sender, EventArgs e) {
-            showRefreshRateMinimumMaximum();
+            ShowRefreshRateMinimumMaximum();
         }
     }
 }

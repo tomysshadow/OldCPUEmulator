@@ -1,6 +1,6 @@
 ﻿namespace OldCPUSimulatorGUI
 {
-	partial class Form1
+	partial class OldCPUSimulatorGUI
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OldCPUSimulatorGUI));
             this.recentFilesListBox = new System.Windows.Forms.ListBox();
             this.titleLabel = new System.Windows.Forms.Label();
             this.subtitleLabel = new System.Windows.Forms.Label();
@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(261, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Simulator 1.5.5";
+            this.titleLabel.Text = "Old CPU Simulator 1.5.6";
             // 
             // subtitleLabel
             // 
