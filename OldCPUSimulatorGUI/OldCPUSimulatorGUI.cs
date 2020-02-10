@@ -15,7 +15,7 @@ namespace OldCPUSimulatorGUI {
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e) {
+        private void OldCPUSimulatorGUI_Load(object sender, EventArgs e) {
             targetMhzComboBox.SelectedIndex = 0;
             FloorRefreshRateFifteen();
             recentFilesListBox.Items.Insert(0, Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString0);
@@ -207,6 +207,7 @@ namespace OldCPUSimulatorGUI {
                     break;
                 }
             } catch (Exception) {
+                Show();
                 MessageBox.Show("Failed to Create Old CPU Simulator Process");
             }
         }

@@ -374,7 +374,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Old CPU Simulator";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.OldCPUSimulatorGUI_Load);
             this.recentFilesGroupBox.ResumeLayout(false);
             this.optionsGroupBox.ResumeLayout(false);
             this.optionsGroupBox.PerformLayout();
