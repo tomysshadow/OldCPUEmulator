@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(261, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Simulator 1.5.6";
+            this.titleLabel.Text = "Old CPU Simulator 1.6.0";
             // 
             // subtitleLabel
             // 
@@ -154,8 +154,6 @@
             // setProcessPriorityHighCheckBox
             // 
             this.setProcessPriorityHighCheckBox.AutoSize = true;
-            this.setProcessPriorityHighCheckBox.Checked = true;
-            this.setProcessPriorityHighCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.setProcessPriorityHighCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.setProcessPriorityHighCheckBox.Location = new System.Drawing.Point(10, 43);
             this.setProcessPriorityHighCheckBox.Name = "setProcessPriorityHighCheckBox";
@@ -278,6 +276,8 @@
             // syncedProcessMainThreadOnlyCheckBox
             // 
             this.syncedProcessMainThreadOnlyCheckBox.AutoSize = true;
+            this.syncedProcessMainThreadOnlyCheckBox.Checked = true;
+            this.syncedProcessMainThreadOnlyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.syncedProcessMainThreadOnlyCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.syncedProcessMainThreadOnlyCheckBox.Location = new System.Drawing.Point(22, 356);
             this.syncedProcessMainThreadOnlyCheckBox.Name = "syncedProcessMainThreadOnlyCheckBox";
@@ -352,7 +352,7 @@
             this.helpToolTip.UseAnimation = false;
             this.helpToolTip.UseFading = false;
             // 
-            // Form1
+            // OldCPUSimulatorGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -372,7 +372,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "OldCPUSimulatorGUI";
             this.Text = "Old CPU Simulator";
             this.Load += new System.EventHandler(this.OldCPUSimulatorGUI_Load);
             this.recentFilesGroupBox.ResumeLayout(false);

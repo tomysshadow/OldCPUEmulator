@@ -1,4 +1,4 @@
-Old CPU Simulator 1.5.6
+Old CPU Simulator 1.6.0
 By Anthony Kleine
 
 	This command line tool simulates running a process on a CPU with a
@@ -6,7 +6,7 @@ By Anthony Kleine
 	or underclock CPU intensive processes like video encoding.
 
 
-Usage: OldCPUSimulator pathname.exe -t targetRate [options]
+Usage: OldCPUSimulator -t targetRate [options] -sw software.exe
 
 -t targetRate
 	The Target Rate (in MHz, from 1 to your CPU's current clock speed)
@@ -51,6 +51,14 @@ Usage: OldCPUSimulator pathname.exe -t targetRate [options]
 
 --refresh-rate-floor-fifteen
 	Rounds Refresh Rate to the nearest multiple of 15 if applicable.
+
+-sw (or --software)
+	The software that will be created as the synced process.
+	This argument is required.
+
+	It must be given last, after all the options. It may
+	include command line arguments, which will be passed
+	to the software specified.
 	
 
 Notice: this tool was previously titled Old CPU Emulator. It was renamed because it is not an emulator.

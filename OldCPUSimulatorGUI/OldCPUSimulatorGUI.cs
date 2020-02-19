@@ -128,7 +128,7 @@ namespace OldCPUSimulatorGUI {
 
         private void CreateOldCPUSimulatorProcess() {
             // create Arguments for the Old CPU Simulator Process Start Info
-            string oldCPUSimulatorProcessStartInfoArguments = "\"" + recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem) + "\"";
+            string oldCPUSimulatorProcessStartInfoArguments = "";
 
             long targetMhz = 0;
             long currentMhz = 0;
@@ -155,8 +155,9 @@ namespace OldCPUSimulatorGUI {
             if (refreshRateFloorFifteenCheckBox.Checked) {
                 oldCPUSimulatorProcessStartInfoArguments += " --refresh-rate-floor-fifteen";
             }
-
+            
             // create the Old CPU Simulator Process Start Info
+            oldCPUSimulatorProcessStartInfoArguments += " -sw \"" + recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem) + "\"";
             ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", oldCPUSimulatorProcessStartInfoArguments);
             oldCPUSimulatorProcessStartInfo.UseShellExecute = false;
             oldCPUSimulatorProcessStartInfo.RedirectStandardError = true;

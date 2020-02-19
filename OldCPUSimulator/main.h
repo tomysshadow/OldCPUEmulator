@@ -70,6 +70,7 @@ HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 HANDLE hConsoleError = GetStdHandle(STD_ERROR_HANDLE);
 */
 const UINT UWM_SIMULATE_OLD_CPUS_SYNC_PROCESS = RegisterWindowMessage("UWM_SIMULATE_OLD_CPUS_SYNC_PROCESS");
+const char* WHITESPACE = " \t\n";
 
 void consoleLog(const char *buffer, int newline = true, int tab = false, bool err = false) {
 	for (int i = 0;i < tab;i++) {
@@ -97,7 +98,7 @@ void help() {
 	 consoleLog("or underclock CPU intensive processes like video encoding.", 3, true);
 
 
-	consoleLog("Usage: OldCPUSimulator pathname.exe -t targetRate [options]", 2);
+	consoleLog("Usage: OldCPUSimulator -t targetRate [options] -sw software.exe", 2);
 
 	consoleLog("-t targetRate");
 	 consoleLog("The Target Rate (in MHz, from 1 to your CPU's current clock speed)", true, true);
@@ -142,6 +143,14 @@ void help() {
 
 	consoleLog("--refresh-rate-floor-fifteen");
 	 consoleLog("Rounds Refresh Rate to the nearest multiple of 15 if applicable.", 2, true);
+
+	consoleLog("-sw (or --software)");
+	 consoleLog("The software that will be created as the synced process.", true, true);
+	 consoleLog("This argument is required.", 2, true);
+
+	 consoleLog("It must be given last, after all the options. It may", true, true);
+	 consoleLog("include command line arguments, which will be passed", true, true);
+	 consoleLog("to the software specified.", 2, true);
 }
 
 inline UINT clamp(UINT number, UINT min, UINT max) {
