@@ -130,7 +130,7 @@ std::string getCommandLineArgumentRange(std::string commandLine, int begin, int 
 
 	while (getCommandLineArgument(commandLine, commandLineArgument)) {
 		commandLineArguments.push_back(commandLineArgument);
-		commandLine.erase(0, commandLineArgument.length());
+		commandLine = commandLine.substr(commandLineArgument.length());
 	}
 
 	int i = 0;
@@ -637,7 +637,7 @@ int main(int argc, char** argv) {
 		return -2;
 	}
 
-	consoleLog("Old CPU Simulator 1.6.0");
+	consoleLog("Old CPU Simulator 1.6.1");
 	consoleLog("By Anthony Kleine", 2);
 
 	/*
@@ -649,17 +649,21 @@ int main(int argc, char** argv) {
 	}
 	*/
 
-	std::string argString = "";
+	std::string arg = "";
 	ULONG currentMhz = 0;
 
 	if (argc > 1) {
-		argString = std::string(argv[1]);
+		arg = std::string(argv[1]);
 
-		if (argString == "--help") {
+		std::for_each(arg.begin(), arg.end(), [](char &argChar) {
+			argChar = tolower(argChar);
+		});
+
+		if (arg == "--help") {
 			help();
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;
-		} else if (argString == "--dev-get-current-mhz") {
+		} else if (arg == "--dev-get-current-mhz") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
 				consoleLog("Failed to Get Current Rate", true, false, true);
@@ -684,9 +688,13 @@ int main(int argc, char** argv) {
 	char mode = -1;
 
 	for (int i = 1; i < argc; ++i) {
-		argString = std::string(argv[i]);
+		arg = std::string(argv[i]);
 
-		if (argString == "--dev-get-current-mhz") {
+		std::for_each(arg.begin(), arg.end(), [](char &argChar) {
+			argChar = tolower(argChar);
+		});
+
+		if (arg == "--dev-get-current-mhz") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
 				consoleLog("Failed to Get Current Rate", true, false, true);
@@ -697,7 +705,7 @@ int main(int argc, char** argv) {
 			consoleLog(std::to_string(currentMhz).c_str(), false);
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;
-		} else if (argString == "-t") {
+		} else if (arg == "-t") {
 			if (!getCurrentMhz(currentMhz)
 				|| !currentMhz) {
 				consoleLog("Failed to Get Current Rate", true, false, true);
@@ -733,7 +741,7 @@ int main(int argc, char** argv) {
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
 				return -1;
 			}
-		} else if (argString == "-r") {
+		} else if (arg == "-r") {
 			if (i + 1 < argc) {
 				refreshHz = atoi(argv[++i]);
 
@@ -751,25 +759,25 @@ int main(int argc, char** argv) {
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
 				return -1;
 			}
-		} else if (argString == "-sw" || argString == "--software") {
+		} else if (arg == "-sw" || arg == "--software") {
 			software = getCommandLineArgumentRange(GetCommandLine(), i + 1, -1);
 			requiredArgs++;
 			break;
-		} else if (argString == "--set-process-priority-high") {
+		} else if (arg == "--set-process-priority-high") {
 			setProcessPriorityHigh = true;
-		} else if (argString == "--set-synced-process-affinity-one") {
+		} else if (arg == "--set-synced-process-affinity-one") {
 			setSyncedProcessAffinityOne = true;
-		} else if (argString == "--synced-process-main-thread-only") {
+		} else if (arg == "--synced-process-main-thread-only") {
 			syncedProcessMainThreadOnly = true;
-		} else if (argString == "--refresh-rate-floor-fifteen") {
+		} else if (arg == "--refresh-rate-floor-fifteen") {
 			refreshHzFloorFifteen = true;
-		} else if (argString == "--dev-force-mode-0") {
+		} else if (arg == "--dev-force-mode-0") {
 			mode = 0;
-		} else if (argString == "--dev-force-mode-1") {
+		} else if (arg == "--dev-force-mode-1") {
 			mode = 1;
-		} else if (argString == "--dev-force-mode-2") {
+		} else if (arg == "--dev-force-mode-2") {
 			mode = 2;
-		} else if (argString == "--help") {
+		} else if (arg == "--help") {
 			help();
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;

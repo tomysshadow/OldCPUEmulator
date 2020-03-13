@@ -119,8 +119,8 @@ c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusim
 c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusimulator\main.cpp(375): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
 c:\users\anthony\documents\visual studio 2017\projects\oldcpusimulator\oldcpusimulator\main.cpp(376): warning C4244: '=': conversion from 'DOUBLE' to 'UINT', possible loss of data
   Generating code
-  0 of 1328 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  2 of 1335 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    5 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   OldCPUSimulator.vcxproj -> C:\Users\Anthony\Documents\Visual Studio 2017\Projects\OldCPUSimulator\Release\OldCPUSimulator.exe
