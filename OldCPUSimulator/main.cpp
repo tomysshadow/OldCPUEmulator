@@ -200,47 +200,38 @@ bool createSyncedProcess(LPCSTR software, HANDLE &syncedProcessHandle, HANDLE &s
 	}
 
 	// this is where we create the synced processHandle and get a handle to it and its main thread, as well as its ID
-	LPSTR path = new CHAR[MAX_PATH];
+	LPSTR fullPathName = new CHAR[MAX_PATH];
 
-	if (!path) {
-		consoleLog("Failed to Allocate path", true, false, true);
+	if (!fullPathName) {
+		consoleLog("Failed to Allocate fullPathName", true, false, true);
 		return false;
 	}
 
-	// SetCurrentDirectory may add a backslash if not present, so
-	// you must use MAX_PATH - 1 characters
-	if (strncpy_s(path, MAX_PATH - 1, CW2A(argv[0]), MAX_PATH - 1)) {
-		consoleLog("Failed to Copy String Maximum", true, false, true);
-		delete[] path;
-		path = NULL;
-		return false;
-	}
-
-	if (!GetFullPathName(path, MAX_PATH - 1, path, NULL)) {
+	if (!GetFullPathName(CW2A(argv[0]), MAX_PATH - 1, fullPathName, NULL)) {
 		consoleLog("Failed to Get Full Path Name", true, false, true);
-		delete[] path;
-		path = NULL;
+		delete[] fullPathName;
+		fullPathName = NULL;
 		return false;
 	}
 
-	while (!PathIsDirectory(path)) {
-		if (!PathRemoveFileSpec(path)) {
+	while (!PathIsDirectory(fullPathName)) {
+		if (!PathRemoveFileSpec(fullPathName)) {
 			consoleLog("Failed to Remove Path File Spec", true, false, true);
-			delete[] path;
-			path = NULL;
+			delete[] fullPathName;
+			fullPathName = NULL;
 			return false;
 		}
 	}
 
-	if (!SetCurrentDirectory(path)) {
+	if (!SetCurrentDirectory(fullPathName)) {
 		consoleLog("Failed to Set Current Directory", true, false, true);
-		delete[] path;
-		path = NULL;
+		delete[] fullPathName;
+		fullPathName = NULL;
 		return false;
 	}
 
-	delete[] path;
-	path = NULL;
+	delete[] fullPathName;
+	fullPathName = NULL;
 
 	STARTUPINFO syncedProcessStartupInformation;
 	PROCESS_INFORMATION syncedProcessStartedInformation;
@@ -637,7 +628,7 @@ int main(int argc, char** argv) {
 		return -2;
 	}
 
-	consoleLog("Old CPU Simulator 1.6.1");
+	consoleLog("Old CPU Simulator 1.6.2");
 	consoleLog("By Anthony Kleine", 2);
 
 	/*

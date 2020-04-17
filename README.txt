@@ -1,4 +1,4 @@
-Old CPU Simulator 1.6.1
+Old CPU Simulator 1.6.2
 By Anthony Kleine
 
 	This command line tool simulates running a process on a CPU with a
