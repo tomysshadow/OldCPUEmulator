@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,6 +17,12 @@ namespace OldCPUSimulatorGUI {
         }
 
         private void OldCPUSimulatorGUI_Load(object sender, EventArgs e) {
+            try {
+                Directory.SetCurrentDirectory(Application.StartupPath);
+            } catch {
+                // Fail silently.
+            }
+
             targetMhzComboBox.SelectedIndex = 0;
             FloorRefreshRateFifteen();
             recentFilesListBox.Items.Insert(0, Properties.Settings.Default.oldCPUSimulatorSaveDataRecentFilesListBoxItemString0);
@@ -47,19 +54,21 @@ namespace OldCPUSimulatorGUI {
             currentMhz = 0;
 
             // create the Get Current Mhz Process to get the Current Rate
-            ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", "--dev-get-current-mhz");
-            oldCPUSimulatorProcessStartInfo.UseShellExecute = false;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardError = false;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardOutput = true;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardInput = false;
-            oldCPUSimulatorProcessStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            oldCPUSimulatorProcessStartInfo.CreateNoWindow = true;
-            oldCPUSimulatorProcessStartInfo.ErrorDialog = false;
-            oldCPUSimulatorProcessStartInfo.WorkingDirectory = Environment.CurrentDirectory;
+            ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", "--dev-get-current-mhz") {
+                UseShellExecute = false,
+                RedirectStandardError = false,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = false,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                ErrorDialog = false
+            };
 
             try {
-                Process oldCPUSimulatorProcess = new Process();
-                oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
+                Process oldCPUSimulatorProcess = new Process {
+                    StartInfo = oldCPUSimulatorProcessStartInfo
+                };
+
                 oldCPUSimulatorProcess.Start();
                 string oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
 
@@ -74,7 +83,7 @@ namespace OldCPUSimulatorGUI {
 
                 // set the Current Rate Value Label's Text to the Current Rate String
                 currentMhzValueLabel.Text = currentMhz.ToString();
-            } catch (Exception) {
+            } catch {
                 MessageBox.Show("Failed to Get Current Rate");
                 return false;
             }
@@ -155,23 +164,29 @@ namespace OldCPUSimulatorGUI {
             if (refreshRateFloorFifteenCheckBox.Checked) {
                 oldCPUSimulatorProcessStartInfoArguments += " --refresh-rate-floor-fifteen";
             }
-            
-            // create the Old CPU Simulator Process Start Info
-            oldCPUSimulatorProcessStartInfoArguments += " -sw \"" + recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem) + "\"";
-            ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", oldCPUSimulatorProcessStartInfoArguments);
-            oldCPUSimulatorProcessStartInfo.UseShellExecute = false;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardError = true;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardOutput = false;
-            oldCPUSimulatorProcessStartInfo.RedirectStandardInput = false;
-            oldCPUSimulatorProcessStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            oldCPUSimulatorProcessStartInfo.CreateNoWindow = true;
-            oldCPUSimulatorProcessStartInfo.ErrorDialog = false;
-            oldCPUSimulatorProcessStartInfo.WorkingDirectory = Environment.CurrentDirectory;
 
             try {
+                string fullPath = Path.GetFullPath(recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem));
+
+                // create the Old CPU Simulator Process Start Info
+                oldCPUSimulatorProcessStartInfoArguments += " -sw \"" + fullPath + "\"";
+
+                ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", oldCPUSimulatorProcessStartInfoArguments) {
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = false,
+                    RedirectStandardInput = false,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    ErrorDialog = false,
+                    WorkingDirectory = Path.GetDirectoryName(fullPath)
+                };
+
                 // create the Old CPU Simulator Process
-                Process oldCPUSimulatorProcess = new Process();
-                oldCPUSimulatorProcess.StartInfo = oldCPUSimulatorProcessStartInfo;
+                Process oldCPUSimulatorProcess = new Process {
+                    StartInfo = oldCPUSimulatorProcessStartInfo
+                };
+
                 // hide... our laziness with not being async
                 Hide();
                 oldCPUSimulatorProcess.Start();
@@ -207,7 +222,7 @@ namespace OldCPUSimulatorGUI {
                     MessageBox.Show("Failed to Simulate Old CPU");
                     break;
                 }
-            } catch (Exception) {
+            } catch {
                 Show();
                 MessageBox.Show("Failed to Create Old CPU Simulator Process");
             }

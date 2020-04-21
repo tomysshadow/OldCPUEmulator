@@ -166,31 +166,56 @@ bool createSyncedProcess(LPCSTR software, HANDLE &syncedProcessHandle, HANDLE &s
 		return false;
 	}
 
-	// we create a job so that if either the processHandle or the synced processHandle ends
-	// for whatever reason, we don't sync the processHandle anymore
-	jobHandle = CreateJobObject(NULL, NULL);
+	BOOL processIsInJob = false;
 
-	if (!jobHandle || jobHandle == INVALID_HANDLE_VALUE) {
-		consoleLog("Failed to Create Job Object", true, false, true);
+	if (!IsProcessInJob(GetCurrentProcess(), NULL, &processIsInJob)) {
+		consoleLog("Failed to Test If Process Is In Job", true, false, true);
 		return false;
 	}
 
-	// this is how we kill both processes if either ends
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobobjectExtendedLimitInformation = {};
-	jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 
-	if (!SetInformationJobObject(jobHandle, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation))) {
-		consoleLog("Failed to Set Job Object Information", true, false, true);
-		return false;
+	if (processIsInJob) {
+		// if process is in job we need to check if it's the required job
+		if (!QueryInformationJobObject(NULL, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation), NULL)) {
+			consoleLog("Failed to Query Job Object Information", true, false, true);
+			return false;
+		}
+
+		if (!(jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags & JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE)) {
+			// if we are not already setup to kill on job close
+			// then we aren't in the required job
+			processIsInJob = false;
+		}
+	} 
+	
+	if (!processIsInJob) {
+		// we create a job so that if either the processHandle or the synced processHandle ends
+		// for whatever reason, we don't sync the processHandle anymore
+		jobHandle = CreateJobObject(NULL, NULL);
+
+		if (!jobHandle || jobHandle == INVALID_HANDLE_VALUE) {
+			consoleLog("Failed to Create Job Object", true, false, true);
+			return false;
+		}
+
+		// this is how we kill both processes if either ends
+		jobobjectExtendedLimitInformation.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+
+		if (!SetInformationJobObject(jobHandle, JobObjectExtendedLimitInformation, &jobobjectExtendedLimitInformation, sizeof(jobobjectExtendedLimitInformation))) {
+			consoleLog("Failed to Set Job Object Information", true, false, true);
+			return false;
+		}
+
+		// assign the current processHandle to the job object
+		// we assign the synced processHandle later
+		if (!AssignProcessToJobObject(jobHandle, GetCurrentProcess())) {
+			consoleLog("Failed to Assign Current Process to Job Object", true, false, true);
+			return false;
+		}
 	}
 
-	// assign the current processHandle to the job object
-	// we assign the synced processHandle later
-	if (!AssignProcessToJobObject(jobHandle, GetCurrentProcess())) {
-		consoleLog("Failed to Assign Current Process to Job Object", true, false, true);
-		return false;
-	}
-
+	/*
 	int argc = 0;
 	LPWSTR* argv = CommandLineToArgvW(CA2W(software), &argc);
 
@@ -232,6 +257,7 @@ bool createSyncedProcess(LPCSTR software, HANDLE &syncedProcessHandle, HANDLE &s
 
 	delete[] fullPathName;
 	fullPathName = NULL;
+	*/
 
 	STARTUPINFO syncedProcessStartupInformation;
 	PROCESS_INFORMATION syncedProcessStartedInformation;
@@ -628,7 +654,7 @@ int main(int argc, char** argv) {
 		return -2;
 	}
 
-	consoleLog("Old CPU Simulator 1.6.2");
+	consoleLog("Old CPU Simulator 1.6.3");
 	consoleLog("By Anthony Kleine", 2);
 
 	/*
