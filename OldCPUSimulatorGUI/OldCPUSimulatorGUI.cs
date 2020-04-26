@@ -65,11 +65,7 @@ namespace OldCPUSimulatorGUI {
             };
 
             try {
-                Process oldCPUSimulatorProcess = new Process {
-                    StartInfo = oldCPUSimulatorProcessStartInfo
-                };
-
-                oldCPUSimulatorProcess.Start();
+                Process oldCPUSimulatorProcess = Process.Start(oldCPUSimulatorProcessStartInfo);
                 string oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
 
                 if (!oldCPUSimulatorProcess.HasExited) {
@@ -137,7 +133,7 @@ namespace OldCPUSimulatorGUI {
 
         private void CreateOldCPUSimulatorProcess() {
             // create Arguments for the Old CPU Simulator Process Start Info
-            string oldCPUSimulatorProcessStartInfoArguments = "";
+            StringBuilder oldCPUSimulatorProcessStartInfoArguments = new StringBuilder();
 
             long targetMhz = 0;
             long currentMhz = 0;
@@ -146,32 +142,36 @@ namespace OldCPUSimulatorGUI {
                 return;
             }
 
-            oldCPUSimulatorProcessStartInfoArguments += " -t " + targetMhz;
-            oldCPUSimulatorProcessStartInfoArguments += " -r " + refreshHzNumericUpDown.Value;
+            oldCPUSimulatorProcessStartInfoArguments.Append(" -t ");
+            oldCPUSimulatorProcessStartInfoArguments.Append(targetMhz);
+            oldCPUSimulatorProcessStartInfoArguments.Append(" -r ");
+            oldCPUSimulatorProcessStartInfoArguments.Append(refreshHzNumericUpDown.Value);
 
             if (setProcessPriorityHighCheckBox.Checked) {
-                oldCPUSimulatorProcessStartInfoArguments += " --set-process-priority-high";
+                oldCPUSimulatorProcessStartInfoArguments.Append(" --set-process-priority-high");
             }
 
             if (setSyncedProcessAffinityOneCheckBox.Checked) {
-                oldCPUSimulatorProcessStartInfoArguments += " --set-synced-process-affinity-one";
+                oldCPUSimulatorProcessStartInfoArguments.Append(" --set-synced-process-affinity-one");
             }
 
             if (syncedProcessMainThreadOnlyCheckBox.Checked) {
-                oldCPUSimulatorProcessStartInfoArguments += " --synced-process-main-thread-only";
+                oldCPUSimulatorProcessStartInfoArguments.Append(" --synced-process-main-thread-only");
             }
 
             if (refreshRateFloorFifteenCheckBox.Checked) {
-                oldCPUSimulatorProcessStartInfoArguments += " --refresh-rate-floor-fifteen";
+                oldCPUSimulatorProcessStartInfoArguments.Append(" --refresh-rate-floor-fifteen");
             }
 
             try {
                 string fullPath = Path.GetFullPath(recentFilesListBox.GetItemText(recentFilesListBox.SelectedItem));
 
                 // create the Old CPU Simulator Process Start Info
-                oldCPUSimulatorProcessStartInfoArguments += " -sw \"" + fullPath + "\"";
+                oldCPUSimulatorProcessStartInfoArguments.Append(" -sw \"");
+                oldCPUSimulatorProcessStartInfoArguments.Append(fullPath);
+                oldCPUSimulatorProcessStartInfoArguments.Append("\"");
 
-                ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", oldCPUSimulatorProcessStartInfoArguments) {
+                ProcessStartInfo oldCPUSimulatorProcessStartInfo = new ProcessStartInfo("OldCPUSimulator.exe", oldCPUSimulatorProcessStartInfoArguments.ToString()) {
                     UseShellExecute = false,
                     RedirectStandardError = true,
                     RedirectStandardOutput = false,
@@ -183,13 +183,9 @@ namespace OldCPUSimulatorGUI {
                 };
 
                 // create the Old CPU Simulator Process
-                Process oldCPUSimulatorProcess = new Process {
-                    StartInfo = oldCPUSimulatorProcessStartInfo
-                };
-
                 // hide... our laziness with not being async
                 Hide();
-                oldCPUSimulatorProcess.Start();
+                Process oldCPUSimulatorProcess = Process.Start(oldCPUSimulatorProcessStartInfo);
 
                 if (!oldCPUSimulatorProcess.HasExited) {
                     oldCPUSimulatorProcess.WaitForExit();
