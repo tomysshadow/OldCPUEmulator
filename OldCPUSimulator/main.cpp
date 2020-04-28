@@ -654,7 +654,7 @@ int main(int argc, char** argv) {
 		return -2;
 	}
 
-	consoleLog("Old CPU Simulator 1.6.3");
+	consoleLog("Old CPU Simulator 1.6.4");
 	consoleLog("By Anthony Kleine", 2);
 
 	/*

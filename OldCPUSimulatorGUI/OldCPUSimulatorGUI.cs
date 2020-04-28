@@ -66,10 +66,20 @@ namespace OldCPUSimulatorGUI {
 
             try {
                 Process oldCPUSimulatorProcess = Process.Start(oldCPUSimulatorProcessStartInfo);
-                string oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
 
                 if (!oldCPUSimulatorProcess.HasExited) {
                     oldCPUSimulatorProcess.WaitForExit();
+                }
+
+                string oldCPUSimulatorProcessStandardError = null;
+                string oldCPUSimulatorProcessStandardOutput = null;
+
+                if (oldCPUSimulatorProcessStartInfo.RedirectStandardError) {
+                    oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
+                }
+
+                if (oldCPUSimulatorProcessStartInfo.RedirectStandardOutput) {
+                    oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
                 }
 
                 if (oldCPUSimulatorProcess.ExitCode != 0 || !long.TryParse(oldCPUSimulatorProcessStandardOutput.Split('\n').Last(), out currentMhz)) {
@@ -193,16 +203,32 @@ namespace OldCPUSimulatorGUI {
 
                 Show();
 
+                string oldCPUSimulatorProcessStandardError = null;
+                string oldCPUSimulatorProcessStandardOutput = null;
+
+                if (oldCPUSimulatorProcessStartInfo.RedirectStandardError) {
+                    oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
+                }
+
+                if (oldCPUSimulatorProcessStartInfo.RedirectStandardOutput) {
+                    oldCPUSimulatorProcessStandardOutput = oldCPUSimulatorProcess.StandardOutput.ReadToEnd();
+                }
+
                 switch (oldCPUSimulatorProcess.ExitCode) {
                     case 0:
                     break;
                     case -1:
-                    string oldCPUSimulatorProcessStandardError = oldCPUSimulatorProcess.StandardError.ReadToEnd();
-                    string[] lastOldCPUSimulatorProcessStandardErrors = oldCPUSimulatorProcessStandardError.Split('\n');
-                    string lastOldCPUSimulatorProcessStandardError = lastOldCPUSimulatorProcessStandardErrors.Length < 2 ? null : lastOldCPUSimulatorProcessStandardErrors[lastOldCPUSimulatorProcessStandardErrors.Length - 2];
+                    if (!String.IsNullOrEmpty(oldCPUSimulatorProcessStandardError)) {
+                        string[] lastOldCPUSimulatorProcessStandardErrors = oldCPUSimulatorProcessStandardError.Split('\n');
+                        string lastOldCPUSimulatorProcessStandardError = null;
 
-                    if (!string.IsNullOrEmpty(lastOldCPUSimulatorProcessStandardError)) {
-                        MessageBox.Show(lastOldCPUSimulatorProcessStandardError);
+                        if (lastOldCPUSimulatorProcessStandardErrors.Length > 1) {
+                            lastOldCPUSimulatorProcessStandardError = lastOldCPUSimulatorProcessStandardErrors[lastOldCPUSimulatorProcessStandardErrors.Length - 2];
+                        }
+
+                        if (!String.IsNullOrEmpty(lastOldCPUSimulatorProcessStandardError)) {
+                            MessageBox.Show(lastOldCPUSimulatorProcessStandardError);
+                        }
                     }
                     break;
                     case -2:
