@@ -25,8 +25,8 @@ void getOriginalNtDll(HMODULE &originalNtDll,
 	}
 }
 
-bool getCurrentMhz(ULONG &currentMhz) {
-	//consoleLog("Getting Current Rate");
+bool getMhzLimit(ULONG &mhzLimit) {
+	//consoleLog("Getting Rate Limit");
 
 	SYSTEM_INFO systemInfo = {};
 	GetSystemInfo(&systemInfo);
@@ -48,7 +48,7 @@ bool getCurrentMhz(ULONG &currentMhz) {
 
 	PPROCESSOR_POWER_INFORMATION processorPowerInformationPointer = (PPROCESSOR_POWER_INFORMATION)processorPowerInformationOutputBufferPointer;
 
-	currentMhz = processorPowerInformationPointer->CurrentMhz;
+	mhzLimit = processorPowerInformationPointer->MhzLimit;
 
 	delete[] processorPowerInformationOutputBufferPointer;
 	processorPowerInformationOutputBufferPointer = NULL;
@@ -654,7 +654,7 @@ int main(int argc, char** argv) {
 		return -2;
 	}
 
-	consoleLog("Old CPU Simulator 1.6.4");
+	consoleLog("Old CPU Simulator 1.6.5");
 	consoleLog("By Anthony Kleine", 2);
 
 	/*
@@ -667,7 +667,7 @@ int main(int argc, char** argv) {
 	*/
 
 	std::string arg = "";
-	ULONG currentMhz = 0;
+	ULONG mhzLimit = 0;
 
 	if (argc > 1) {
 		arg = std::string(argv[1]);
@@ -680,15 +680,15 @@ int main(int argc, char** argv) {
 			help();
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;
-		} else if (arg == "--dev-get-current-mhz") {
-			if (!getCurrentMhz(currentMhz)
-				|| !currentMhz) {
-				consoleLog("Failed to Get Current Rate", true, false, true);
+		} else if (arg == "--dev-get-mhz-limit") {
+			if (!getMhzLimit(mhzLimit)
+				|| !mhzLimit) {
+				consoleLog("Failed to Get Rate Limit", true, false, true);
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
 				return -1;
 			}
 
-			consoleLog(std::to_string(currentMhz).c_str(), false);
+			consoleLog(std::to_string(mhzLimit).c_str(), false);
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;
 		}
@@ -711,21 +711,21 @@ int main(int argc, char** argv) {
 			argChar = tolower(argChar);
 		});
 
-		if (arg == "--dev-get-current-mhz") {
-			if (!getCurrentMhz(currentMhz)
-				|| !currentMhz) {
-				consoleLog("Failed to Get Current Rate", true, false, true);
+		if (arg == "--dev-get-mhz-limit") {
+			if (!getMhzLimit(mhzLimit)
+				|| !mhzLimit) {
+				consoleLog("Failed to Get Rate Limit", true, false, true);
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
 				return -3;
 			}
 
-			consoleLog(std::to_string(currentMhz).c_str(), false);
+			consoleLog(std::to_string(mhzLimit).c_str(), false);
 			ReleaseMutex(oldCPUSimulatorMutexHandle);
 			return 0;
 		} else if (arg == "-t") {
-			if (!getCurrentMhz(currentMhz)
-				|| !currentMhz) {
-				consoleLog("Failed to Get Current Rate", true, false, true);
+			if (!getMhzLimit(mhzLimit)
+				|| !mhzLimit) {
+				consoleLog("Failed to Get Rate Limit", true, false, true);
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
 				return -1;
 			}
@@ -740,9 +740,9 @@ int main(int argc, char** argv) {
 					return -1;
 				}
 
-				if (currentMhz <= targetMhz) {
-					consoleLog("The Target Rate cannot exceed or equal the Current Rate of ", false, false, true);
-					consoleLog(std::to_string(currentMhz).c_str(), false, false, true);
+				if (mhzLimit <= targetMhz) {
+					consoleLog("The Target Rate cannot exceed or equal the Rate Limit of ", false, false, true);
+					consoleLog(std::to_string(mhzLimit).c_str(), false, false, true);
 					consoleLog(".", 3, false, true);
 					help();
 					ReleaseMutex(oldCPUSimulatorMutexHandle);
@@ -752,7 +752,7 @@ int main(int argc, char** argv) {
 				requiredArgs++;
 			} else {
 				consoleLog("-t option requires one argument: the Target Rate (in MHz, from 1 to your CPU's clock speed of ", false, false, true);
-				consoleLog(std::to_string(currentMhz).c_str(), false, false, true);
+				consoleLog(std::to_string(mhzLimit).c_str(), false, false, true);
 				consoleLog(") to simulate.", 3, false, true);
 				help();
 				ReleaseMutex(oldCPUSimulatorMutexHandle);
@@ -891,8 +891,8 @@ int main(int argc, char** argv) {
 	UINT resumeMs = 0;
 	UINT ms = 1;
 	UINT s = 1000;
-	DOUBLE suspend = ((DOUBLE)(currentMhz - targetMhz) / (DOUBLE)currentMhz);
-	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)currentMhz);
+	DOUBLE suspend = ((DOUBLE)(mhzLimit - targetMhz) / (DOUBLE)mhzLimit);
+	DOUBLE resume = ((DOUBLE)targetMhz / (DOUBLE)mhzLimit);
 
 	if (!beginRefreshTimePeriod(refreshHz, refreshMs, suspendMs, resumeMs, ms, s, suspend, resume, refreshHzFloorFifteen)) {
 		consoleLog("Failed to Begin Refresh Time Period", true, false, true);

@@ -50,9 +50,9 @@
             this.newButton = new System.Windows.Forms.Button();
             this.goButton = new System.Windows.Forms.Button();
             this.newOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.currentMhzLabel = new System.Windows.Forms.Label();
+            this.mhzLimitLabel = new System.Windows.Forms.Label();
             this.targetMhzLabel = new System.Windows.Forms.Label();
-            this.currentMhzValueLabel = new System.Windows.Forms.Label();
+            this.mhzLimitValueLabel = new System.Windows.Forms.Label();
             this.helpToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.recentFilesGroupBox.SuspendLayout();
             this.optionsGroupBox.SuspendLayout();
@@ -82,7 +82,7 @@
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(261, 27);
             this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Simulator 1.6.4";
+            this.titleLabel.Text = "Old CPU Simulator 1.6.5";
             // 
             // subtitleLabel
             // 
@@ -311,16 +311,16 @@
             // 
             this.newOpenFileDialog.Filter = "Executable Files (*.exe)|*.exe|All Files (*.*)|*.*";
             // 
-            // currentMhzLabel
+            // mhzLimitLabel
             // 
-            this.currentMhzLabel.AutoSize = true;
-            this.currentMhzLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.currentMhzLabel.Location = new System.Drawing.Point(12, 215);
-            this.currentMhzLabel.Name = "currentMhzLabel";
-            this.currentMhzLabel.Size = new System.Drawing.Size(101, 13);
-            this.currentMhzLabel.TabIndex = 6;
-            this.currentMhzLabel.Text = "Current Rate (MHz:)";
-            this.helpToolTip.SetToolTip(this.currentMhzLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
+            this.mhzLimitLabel.AutoSize = true;
+            this.mhzLimitLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mhzLimitLabel.Location = new System.Drawing.Point(12, 215);
+            this.mhzLimitLabel.Name = "mhzLimitLabel";
+            this.mhzLimitLabel.Size = new System.Drawing.Size(88, 13);
+            this.mhzLimitLabel.TabIndex = 6;
+            this.mhzLimitLabel.Text = "Rate Limit (MHz:)";
+            this.helpToolTip.SetToolTip(this.mhzLimitLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
             // 
             // targetMhzLabel
             // 
@@ -332,16 +332,16 @@
             this.targetMhzLabel.TabIndex = 8;
             this.targetMhzLabel.Text = "Target Rate (MHz:)";
             // 
-            // currentMhzValueLabel
+            // mhzLimitValueLabel
             // 
-            this.currentMhzValueLabel.AutoSize = true;
-            this.currentMhzValueLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.currentMhzValueLabel.Location = new System.Drawing.Point(145, 215);
-            this.currentMhzValueLabel.Name = "currentMhzValueLabel";
-            this.currentMhzValueLabel.Size = new System.Drawing.Size(116, 13);
-            this.currentMhzValueLabel.TabIndex = 9;
-            this.currentMhzValueLabel.Text = "currentRateValueLabel";
-            this.helpToolTip.SetToolTip(this.currentMhzValueLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
+            this.mhzLimitValueLabel.AutoSize = true;
+            this.mhzLimitValueLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mhzLimitValueLabel.Location = new System.Drawing.Point(145, 215);
+            this.mhzLimitValueLabel.Name = "mhzLimitValueLabel";
+            this.mhzLimitValueLabel.Size = new System.Drawing.Size(116, 13);
+            this.mhzLimitValueLabel.TabIndex = 9;
+            this.mhzLimitValueLabel.Text = "currentRateValueLabel";
+            this.helpToolTip.SetToolTip(this.mhzLimitValueLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
             // 
             // helpToolTip
             // 
@@ -357,9 +357,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 423);
-            this.Controls.Add(this.currentMhzValueLabel);
+            this.Controls.Add(this.mhzLimitValueLabel);
             this.Controls.Add(this.targetMhzLabel);
-            this.Controls.Add(this.currentMhzLabel);
+            this.Controls.Add(this.mhzLimitLabel);
             this.Controls.Add(this.goButton);
             this.Controls.Add(this.newButton);
             this.Controls.Add(this.syncedProcessMainThreadOnlyCheckBox);
@@ -406,9 +406,9 @@
 		private System.Windows.Forms.Button goButton;
 		private System.Windows.Forms.NumericUpDown refreshHzNumericUpDown;
 		private System.Windows.Forms.OpenFileDialog newOpenFileDialog;
-		private System.Windows.Forms.Label currentMhzLabel;
+		private System.Windows.Forms.Label mhzLimitLabel;
 		private System.Windows.Forms.Label targetMhzLabel;
-		private System.Windows.Forms.Label currentMhzValueLabel;
+		private System.Windows.Forms.Label mhzLimitValueLabel;
         private System.Windows.Forms.GroupBox refreshHzMaximumGroupBox;
         private System.Windows.Forms.NumericUpDown refreshHzMaximumNumericUpDown;
         private System.Windows.Forms.GroupBox refreshHzMinimumGroupBox;
