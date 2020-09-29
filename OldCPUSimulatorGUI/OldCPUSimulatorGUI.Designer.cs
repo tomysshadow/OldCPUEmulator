@@ -81,8 +81,8 @@
             this.titleLabel.Location = new System.Drawing.Point(12, 12);
             this.titleLabel.Name = "titleLabel";
             this.titleLabel.Size = new System.Drawing.Size(261, 27);
-            this.titleLabel.TabIndex = 2;
-            this.titleLabel.Text = "Old CPU Simulator 1.6.5";
+            this.titleLabel.TabIndex = 0;
+            this.titleLabel.Text = "Old CPU Simulator 1.6.6";
             // 
             // subtitleLabel
             // 
@@ -92,7 +92,7 @@
             this.subtitleLabel.Location = new System.Drawing.Point(12, 44);
             this.subtitleLabel.Name = "subtitleLabel";
             this.subtitleLabel.Size = new System.Drawing.Size(165, 18);
-            this.subtitleLabel.TabIndex = 3;
+            this.subtitleLabel.TabIndex = 1;
             this.subtitleLabel.Text = "By Anthony Kleine";
             // 
             // recentFilesGroupBox
@@ -102,7 +102,7 @@
             this.recentFilesGroupBox.Location = new System.Drawing.Point(12, 77);
             this.recentFilesGroupBox.Name = "recentFilesGroupBox";
             this.recentFilesGroupBox.Size = new System.Drawing.Size(260, 100);
-            this.recentFilesGroupBox.TabIndex = 4;
+            this.recentFilesGroupBox.TabIndex = 2;
             this.recentFilesGroupBox.TabStop = false;
             this.recentFilesGroupBox.Text = "Recent Files";
             // 
@@ -113,11 +113,12 @@
             this.optionsGroupBox.Controls.Add(this.setProcessPriorityHighCheckBox);
             this.optionsGroupBox.Controls.Add(this.refreshHzGroupBox);
             this.optionsGroupBox.Controls.Add(this.refreshHzLabel);
+            this.optionsGroupBox.Controls.Add(this.syncedProcessMainThreadOnlyCheckBox);
             this.optionsGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.optionsGroupBox.Location = new System.Drawing.Point(12, 277);
             this.optionsGroupBox.Name = "optionsGroupBox";
             this.optionsGroupBox.Size = new System.Drawing.Size(259, 134);
-            this.optionsGroupBox.TabIndex = 5;
+            this.optionsGroupBox.TabIndex = 9;
             this.optionsGroupBox.TabStop = false;
             this.optionsGroupBox.Text = "Options";
             // 
@@ -145,7 +146,7 @@
             this.setSyncedProcessAffinityOneCheckBox.Location = new System.Drawing.Point(127, 43);
             this.setSyncedProcessAffinityOneCheckBox.Name = "setSyncedProcessAffinityOneCheckBox";
             this.setSyncedProcessAffinityOneCheckBox.Size = new System.Drawing.Size(122, 30);
-            this.setSyncedProcessAffinityOneCheckBox.TabIndex = 3;
+            this.setSyncedProcessAffinityOneCheckBox.TabIndex = 2;
             this.setSyncedProcessAffinityOneCheckBox.Text = "Set Synced Process\r\nAffinity to One";
             this.helpToolTip.SetToolTip(this.setSyncedProcessAffinityOneCheckBox, "Set the process affinity of the synced process\r\nto one, which may make the speed " +
         "more consistent and prevent crashes.\r\nMay be unstable with newer games.");
@@ -158,7 +159,7 @@
             this.setProcessPriorityHighCheckBox.Location = new System.Drawing.Point(10, 43);
             this.setProcessPriorityHighCheckBox.Name = "setProcessPriorityHighCheckBox";
             this.setProcessPriorityHighCheckBox.Size = new System.Drawing.Size(117, 30);
-            this.setProcessPriorityHighCheckBox.TabIndex = 2;
+            this.setProcessPriorityHighCheckBox.TabIndex = 1;
             this.setProcessPriorityHighCheckBox.Text = "Set Process Priority\r\nto High";
             this.helpToolTip.SetToolTip(this.setProcessPriorityHighCheckBox, "Set the process priority of Old CPU Simulator to High,\r\nin order to potentially i" +
         "mprove the accuracy of the simulation.");
@@ -186,7 +187,7 @@
             this.refreshHzMaximumGroupBox.Padding = new System.Windows.Forms.Padding(0);
             this.refreshHzMaximumGroupBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.refreshHzMaximumGroupBox.Size = new System.Drawing.Size(16, 10);
-            this.refreshHzMaximumGroupBox.TabIndex = 10;
+            this.refreshHzMaximumGroupBox.TabIndex = 0;
             this.refreshHzMaximumGroupBox.TabStop = false;
             this.refreshHzMaximumGroupBox.Visible = false;
             // 
@@ -208,7 +209,7 @@
             this.refreshHzMinimumGroupBox.Padding = new System.Windows.Forms.Padding(0);
             this.refreshHzMinimumGroupBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.refreshHzMinimumGroupBox.Size = new System.Drawing.Size(16, 10);
-            this.refreshHzMinimumGroupBox.TabIndex = 11;
+            this.refreshHzMinimumGroupBox.TabIndex = 1;
             this.refreshHzMinimumGroupBox.TabStop = false;
             this.refreshHzMinimumGroupBox.Visible = false;
             // 
@@ -268,7 +269,7 @@
             this.targetMhzComboBox.Location = new System.Drawing.Point(12, 250);
             this.targetMhzComboBox.Name = "targetMhzComboBox";
             this.targetMhzComboBox.Size = new System.Drawing.Size(260, 21);
-            this.targetMhzComboBox.TabIndex = 0;
+            this.targetMhzComboBox.TabIndex = 8;
             this.helpToolTip.SetToolTip(this.targetMhzComboBox, "The Target Rate (in MHz, from 1 to your CPU\'s current clock speed)\r\nto simulate.");
             this.targetMhzComboBox.SelectedIndexChanged += new System.EventHandler(this.targetMhzComboBox_SelectedIndexChanged);
             this.targetMhzComboBox.TextUpdate += new System.EventHandler(this.targetMhzComboBox_TextUpdate);
@@ -279,10 +280,10 @@
             this.syncedProcessMainThreadOnlyCheckBox.Checked = true;
             this.syncedProcessMainThreadOnlyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.syncedProcessMainThreadOnlyCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.syncedProcessMainThreadOnlyCheckBox.Location = new System.Drawing.Point(22, 356);
+            this.syncedProcessMainThreadOnlyCheckBox.Location = new System.Drawing.Point(10, 85);
             this.syncedProcessMainThreadOnlyCheckBox.Name = "syncedProcessMainThreadOnlyCheckBox";
             this.syncedProcessMainThreadOnlyCheckBox.Size = new System.Drawing.Size(110, 30);
-            this.syncedProcessMainThreadOnlyCheckBox.TabIndex = 4;
+            this.syncedProcessMainThreadOnlyCheckBox.TabIndex = 3;
             this.syncedProcessMainThreadOnlyCheckBox.Text = "Synced Process\r\nMain Thread Only";
             this.helpToolTip.SetToolTip(this.syncedProcessMainThreadOnlyCheckBox, resources.GetString("syncedProcessMainThreadOnlyCheckBox.ToolTip"));
             this.syncedProcessMainThreadOnlyCheckBox.UseVisualStyleBackColor = true;
@@ -292,7 +293,7 @@
             this.newButton.Location = new System.Drawing.Point(12, 183);
             this.newButton.Name = "newButton";
             this.newButton.Size = new System.Drawing.Size(127, 23);
-            this.newButton.TabIndex = 6;
+            this.newButton.TabIndex = 3;
             this.newButton.Text = "New (Ctrl + N)";
             this.newButton.UseVisualStyleBackColor = true;
             this.newButton.Click += new System.EventHandler(this.newButton_Click);
@@ -302,7 +303,7 @@
             this.goButton.Location = new System.Drawing.Point(145, 183);
             this.goButton.Name = "goButton";
             this.goButton.Size = new System.Drawing.Size(127, 23);
-            this.goButton.TabIndex = 7;
+            this.goButton.TabIndex = 4;
             this.goButton.Text = "Go (G)";
             this.goButton.UseVisualStyleBackColor = true;
             this.goButton.Click += new System.EventHandler(this.goButton_Click);
@@ -318,7 +319,7 @@
             this.mhzLimitLabel.Location = new System.Drawing.Point(12, 215);
             this.mhzLimitLabel.Name = "mhzLimitLabel";
             this.mhzLimitLabel.Size = new System.Drawing.Size(88, 13);
-            this.mhzLimitLabel.TabIndex = 6;
+            this.mhzLimitLabel.TabIndex = 5;
             this.mhzLimitLabel.Text = "Rate Limit (MHz:)";
             this.helpToolTip.SetToolTip(this.mhzLimitLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
             // 
@@ -329,7 +330,7 @@
             this.targetMhzLabel.Location = new System.Drawing.Point(12, 234);
             this.targetMhzLabel.Name = "targetMhzLabel";
             this.targetMhzLabel.Size = new System.Drawing.Size(116, 13);
-            this.targetMhzLabel.TabIndex = 8;
+            this.targetMhzLabel.TabIndex = 7;
             this.targetMhzLabel.Text = "Target Rate (MHz:)";
             // 
             // mhzLimitValueLabel
@@ -339,7 +340,7 @@
             this.mhzLimitValueLabel.Location = new System.Drawing.Point(145, 215);
             this.mhzLimitValueLabel.Name = "mhzLimitValueLabel";
             this.mhzLimitValueLabel.Size = new System.Drawing.Size(116, 13);
-            this.mhzLimitValueLabel.TabIndex = 9;
+            this.mhzLimitValueLabel.TabIndex = 6;
             this.mhzLimitValueLabel.Text = "currentRateValueLabel";
             this.helpToolTip.SetToolTip(this.mhzLimitValueLabel, "The Current Rate (in MHz, your CPU\'s current clock speed.)");
             // 
@@ -362,7 +363,6 @@
             this.Controls.Add(this.mhzLimitLabel);
             this.Controls.Add(this.goButton);
             this.Controls.Add(this.newButton);
-            this.Controls.Add(this.syncedProcessMainThreadOnlyCheckBox);
             this.Controls.Add(this.optionsGroupBox);
             this.Controls.Add(this.subtitleLabel);
             this.Controls.Add(this.titleLabel);

@@ -120,31 +120,6 @@
   <metadata name="helpToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>175, 17</value>
   </metadata>
-  <metadata name="helpToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>175, 17</value>
-  </metadata>
-  <data name="refreshHzMaximumNumericUpDown.ToolTip" xml:space="preserve">
-    <value>The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
-
-Effectively an accuracy meter.
-Lower numbers are more accurate but result in choppier playback.
-Higher numbers are less accurate but result in smoother playback.
-If not specified, Old CPU Simulator will default to the
-smoothest possible playback setting.
-
-Try 60, 30 or 15 for gaming, 1 to 6 for video encoding.</value>
-  </data>
-  <data name="refreshHzMinimumNumericUpDown.ToolTip" xml:space="preserve">
-    <value>The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
-
-Effectively an accuracy meter.
-Lower numbers are more accurate but result in choppier playback.
-Higher numbers are less accurate but result in smoother playback.
-If not specified, Old CPU Simulator will default to the
-smoothest possible playback setting.
-
-Try 60, 30 or 15 for gaming, 1 to 6 for video encoding.</value>
-  </data>
   <data name="refreshHzNumericUpDown.ToolTip" xml:space="preserve">
     <value>The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
 
@@ -174,6 +149,28 @@ seems to be barely affected by Old CPU Simulator,
 as it may increase accuracy on some Windows versions,
 as well as reduce audio stutters,
 but could also introduce instability with some games.</value>
+  </data>
+  <data name="refreshHzMaximumNumericUpDown.ToolTip" xml:space="preserve">
+    <value>The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
+
+Effectively an accuracy meter.
+Lower numbers are more accurate but result in choppier playback.
+Higher numbers are less accurate but result in smoother playback.
+If not specified, Old CPU Simulator will default to the
+smoothest possible playback setting.
+
+Try 60, 30 or 15 for gaming, 1 to 6 for video encoding.</value>
+  </data>
+  <data name="refreshHzMinimumNumericUpDown.ToolTip" xml:space="preserve">
+    <value>The Refresh Rate (in Hz, from 1 to 1000) at which to refresh.
+
+Effectively an accuracy meter.
+Lower numbers are more accurate but result in choppier playback.
+Higher numbers are less accurate but result in smoother playback.
+If not specified, Old CPU Simulator will default to the
+smoothest possible playback setting.
+
+Try 60, 30 or 15 for gaming, 1 to 6 for video encoding.</value>
   </data>
   <metadata name="newOpenFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
